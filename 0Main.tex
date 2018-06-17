@@ -1,0 +1,36 @@
+\documentclass{report}
+
+\input{Header}
+
+\begin{document}
+
+\afterpage{\blankpage}
+\includepdf[pages=1, offset=75 -75]{HebrewTitle.pdf}
+
+\afterpage{\blankpage}
+\input{1Cover}
+
+% Not needed by Kreitman school
+%\input{2TitlePage}
+\includepdf[pages=1, offset=75 -75]{HebrewAbstract.pdf}
+
+\afterpage{\blankpage}
+\input{3Abstract}
+
+\beforepreface
+\afterpreface
+
+\input{4Introduction}
+
+\input{5BoostingReal}
+
+\input{6Compression}
+
+\input{7Examples}
+
+\input{8Future}
+
+\bibliographystyle{plainnat}
+\bibliography{9bibitex}
+
+\end{document}

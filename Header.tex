@@ -1,0 +1,315 @@
+\usepackage[english]{babel}
+\usepackage{setspace}
+\usepackage[stable]{footmisc}
+% \usepackage{cite}
+\usepackage[justification=justified,font=small,labelfont=bf,textfont=it]{caption}
+\usepackage{pdfpages}
+\usepackage{newlfont}
+%\usepackage[tight,footnotesize]{subfigure}
+\usepackage{afterpage}
+\usepackage{XThesis} %DAL Thesis Style
+\usepackage{XTocinc}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{wrapfig}
+\usepackage[all]{xy}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{algpseudocode}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,calc}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{observation}[theorem]{\textbf{Observation}}
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{example}{Example}[section]
+\theoremstyle{remark}
+\newtheorem*{rem}{Remark}
+\newtheorem*{note}{Note}
+\newcommand{\ignore}[1]{}
+\newcommand{\bee}{\textsf{BEE}}
+%\providecommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\SB}{\textsf{sb}}
+\newcommand{\vdegree}{\mathsf{deg}}
+\newcommand{\GG}{{\cal G}}
+\newcommand{\PP}{{\cal P}}
+%\newcommand{\NN}{{\cal N}}
+\newcommand{\normalize}{\mathsf{norm}}
+\newcommand{\monotonic}{\mathsf{mono}}
+\newcommand{\plex}{\mathsf{plex}}
+\newcommand{\clex}{\mathsf{clex}}
+\newcommand{\lex}{\mathsf{lex}}
+\newcommand{\nauty}{\textsf{nauty}}
+\newcommand{\snauty}{\scriptsize\textsf{nauty}}
+\newcommand{\sphase}{\scriptsize\textsf{phase}}
+\newcommand{\sdegSeq}{\scriptsize\textsf{degSeq}}
+\renewcommand{\phi}{\varphi}
+\newcommand{\pp}{\!\!\!+\!\!+}
+% \newcommand{\set}[1]{\left\{
+%       \begin{array}{l}#1\end{array}
+%       \right\}}
+\newcommand{\sset}[2]{\left\{~#1  \left|
+      \begin{array}{l}#2\end{array}
+    \right.     \right\}}
+\newcommand\tuple[1]{\langle #1 \rangle}
+\newcommand{\RR}{{\cal R}}
+\newcommand{\etal}{{\it et al.\ }}
+\newcommand\true{\mathit{true}}
+\newcommand\false{\mathit{false}}
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+    
+\usepackage{amssymb, amsfonts}
+\usepackage{multirow}
+\usepackage{graphicx}
+%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage[lined, ruled, linesnumbered, noresetcount]{algorithm2e}
+\newcommand{\lref}[1]{line~\NlSty{\ref{#1}}}
+\newcommand{\Lref}[1]{Line~\NlSty{\ref{#1}}}
+\newcommand{\llref}[2]{lines~\NlSty{\ref{#1}}--\NlSty{\ref{#2}}}
+\newcommand{\Llref}[2]{Lines~\NlSty{\ref{#1}}--\NlSty{\ref{#2}}}
+\newcommand{\jref}[1]{\textbf{\ref{#1}}}
+\newcommand{\denseSpace}{\renewcommand{\baselinestretch}{0.80}\normalsize}
+\newcommand{\normalSpace}{\renewcommand{\baselinestretch}{1.0}\normalsize}
+%\SetKw{Const}{const}
+\newcommand{\remove}[1]{}
+\usepackage{standalone}
+
+%%%%% Added by Meni
+\usepackage{natbib}
+
+\usepackage{blindtext}
+\nolistoffigures
+\usepackage{amsthm}
+\usepackage{amssymb}
+
+\usepackage{todonotes}
+\newcommand{\todoi}[1]{\todo[inline]{#1}}
+
+\usepackage[noend]{algorithm}
+%\usepackage[noend]{algpseudocode}
+%\usepackage[ruled]{algorithm2e}
+%\usepackage{algorithmic}
+\usepackage{algpseudocode}
+
+% general symbols
+\usepackage{stmaryrd}  %for misc. logical symbols
+\newcommand{\pred}[1]{\left\llbracket #1 \right\rrbracket}
+%We will use
+%$\pred{\cdot}$ to assign truth values $\in \{0,1\}$ to predicates
+%contained within the bold brackets.
+\def\d{{\mathrm d}}
+\newcommand{\nrm}[1]{\left\Vert #1 \right\Vert}
+\newcommand{\Norm}[1]{\left\Vert #1 \right\Vert}
+\newcommand{\norm}[1]{\Vert #1 \Vert}
+\newcommand{\RF}{\mathbb{R}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\CF}{\mathbb{C}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\paren}[1]{\left( #1 \right)}
+\newcommand{\sqprn}[1]{\left[ #1 \right]}
+\newcommand{\tlprn}[1]{\left\{ #1 \right\}}
+\newcommand{\set}[1]{\left\{ #1 \right\}}
+\newcommand{\tset}[1]{\{ #1 \}}
+%\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\iprod}[2]{\left\langle #1 , #2 \right\rangle}
+\newcommand{\iprd}[2]{\langle #1 , #2 \rangle}
+\newcommand{\del}{\partial}
+\newcommand{\grad}{\nabla}
+\newcommand{\diff}{\mathrm{d}}
+\newcommand{\dd}[2]{\frac{\diff#1}{\diff#2}}
+\newcommand{\ddel}[2]{\frac{\del#1}{\del#2}}
+\newcommand{\ddell}[2]{\frac{\del^2#1}{{\del#2}^2}}
+\newcommand{\ddelll}[3]{\frac{\del^2#1}{{\del#2}{\del#3}}}
+\newcommand{\beq}{\begin{eqnarray*}}
+\newcommand{\eeq}{\end{eqnarray*}}
+\newcommand{\beqn}{\begin{eqnarray}}
+\newcommand{\eeqn}{\end{eqnarray}}
+\newcommand{\ben}{\begin{enumerate}}
+\newcommand{\een}{\end{enumerate}}
+\newcommand{\bit}{\begin{itemize}}
+\newcommand{\eit}{\end{itemize}}
+\newcommand{\hide}[1]{}
+\newcommand{\oo}[1]{\frac{1}{#1}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\evalat}[2]{\left.#1\right|_{#2}}
+\newcommand{\evalatt}[3]{\left.#1\right|_{#2}^{#3}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\ontop}[2]{\overset{{\scriptsize #1}}{#2}}
+\newcommand{\Perp}{\perp\!\!\!\perp}
+\newcommand{\limsu}{\mathop{\overline{\mathrm{lim}}}}
+\newcommand{\limin}{\mathop{\underline{\mathrm{lim}}}}
+\newcommand{\argmin}{\mathop{\mathrm{argmin}}}
+\newcommand{\argmax}{\mathop{\mathrm{argmax}}}
+\newcommand{\powrs}[1]{\langle\!\langle #1 \rangle\!\rangle}
+\newcommand{\polys}[1]{\langle #1 \rangle}
+\newcommand{\contf}{\mathscr{C}}
+%\newcommand{\trn}{^{{}^\intercal}} %operator transpose
+\newcommand{\trn}{^\intercal} %operator transpose
+%\newcommand{\trn}{^{{}^{\!\intercal}}} %operator transpose
+\newcommand{\inv}{^{-1}} %inverse
+\newcommand{\unit}{\boldsymbol{1}}
+\newcommand{\zero}{\boldsymbol{0}}
+\newcommand{\defeq}{\stackrel{\mathrm{def}}{=}}
+\newcommand{\pleq}{~+\!=}
+%\newcommand{\chr}{\mathrm{\bs{1}\hspace{-3pt}I}} % characteristic function
+%\newcommand{\chr}{\mathbb{1}} % characteristic function
+% requires \usepackage{mathbbol}
+\newcommand{\chr}{\boldsymbol{{1}}} % characteristic function
+%\newcommand{\ind}{\boldsymbol{{1}}} % characteristic function
+
+% function names
+\newcommand{\zeros}{\operatorname{zeros}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\vol}{\operatorname{vol}}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\ddim}{\operatorname{ddim}}
+\newcommand{\acos}{\operatorname{acos}}
+\newcommand{\intr}{\operatorname{int}\,}
+\newcommand{\extr}{\operatorname{ext}\,}
+\newcommand{\dom}{\operatorname{dom}\,}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\cone}{\operatorname{cone}}
+\newcommand{\erf}{\operatorname{erf}}
+\newcommand{\erfi}{\operatorname{erfi}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+%probability & statistics symbols
+\newcommand{\convd}{\overset{{\scriptsize d}}{\to}}
+\newcommand{\convp}{\overset{{\scriptsize p}}{\to}}
+\newcommand{\unif}{\mathrm{Uniform}}
+\newcommand{\bern}{\mathrm{Bernoulli}}
+\newcommand{\negbin}{\mathrm{NegBinom}}
+\newcommand{\Binom}{\mathrm{Bin}}
+\newcommand{\pois}{\mathrm{Poisson}}
+%\newcommand{\ndistr}{\mathrm{Normal}}
+\newcommand{\ndistr}{\mathrm{n}}
+\newcommand{\Bdistr}{\mathrm{Beta}}
+\newcommand{\Gdistr}{\mathrm{Gamma}}
+\newcommand{\gn}{\, | \,}
+\newcommand{\Gn}{\, \big| \,}
+% f(x) = \frac{1}{\beta^\alpha\Gamma(\alpha)}x^{\alpha-1}e^{-x/\beta}
+\newcommand{\iGdistr}{\mathrm{InvGamma}} 
+% f(x) = \frac{1}{\beta^\alpha\Gamma(\alpha)}x^{-\alpha-1}e^{-1/(\beta x)}
+\newcommand{\MSE}{\mathrm{MSE}} 
+\newcommand{\MAE}{\mathrm{MAE}} 
+\newcommand{\ARE}{\mathrm{ARE}} 
+\newcommand{\se}{\mathrm{se}} 
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calH}{\mathcal{H}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calX}{\mathcal{X}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calZ}{\mathcal{Z}}
+\newcommand{\tha}{\theta}
+%\newcommand{\mexp}{\mathbb{E}}
+%\newcommand{\mexp}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\var}{\mathrm{Var}}
+\newcommand{\cov}{\mathrm{Cov}}
+\newcommand{\corr}{\mathrm{Cor}}
+\newcommand{\bX}{\bs{X}}
+\newcommand{\bx}{\bs{x}}
+\newcommand{\bY}{\bs{Y}}
+\newcommand{\by}{\bs{y}}
+\newcommand{\bZ}{\bs{Z}}
+\newcommand{\bz}{\bs{z}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+%\newcommand{\prob}{\mathrm{Pr}}
+
+
+% embeddings
+\newcommand{\embeds}[1]{\;\lhook\joinrel\xrightarrow{#1}\;}
+
+%misc commands
+\newcommand{\ds}{\displaystyle}
+\newcommand{\ts}{\textstyle}
+\newcommand{\bs}{\boldsymbol}
+\renewcommand{\th}{\ensuremath{^{\mathrm{th}}}~}
+\newcommand{\skipe}{&&\nonumber\\}
+\def\blk{~\texttt{<LK>}~}
+\def\elk{~\texttt{</LK>}~}
+\newcommand{\lnote}[1]{\blk #1 \elk}
+
+% the edge/advantage/margin
+\newcommand{\adv}{\gamma}
+% the deviation of the real-valued hypothesis from the truth
+\newcommand{\dev}{\eta}
+% learn time
+\newcommand{\tlearn}{T_{\calA}}
+% eval time
+\newcommand{\teval}{T_{\calE}}
+
+\newcommand{\F}{\mathcal{F}}
+\renewcommand{\H}{\mathcal{H}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\K}{\mathcal{K}}
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+
+% big O notation
+\newcommand{\bigO}[1]{{O}\left(#1\right)}
+
+% Unit fraction macro
+\newcommand{\uf}[1]{\frac{1}{#1}}
+
+\newcommand{\algname}[1]{{\tt#1}}
+
+% a simple red-colored notes
+\newcommand\mynote[1]{\textcolor{red}{#1}}
+
+%\newcommand{\F}{\mathcal{F}}
+\renewcommand{\H}{\mathcal{H}}
+%\renewcommand{\P}{\mathbb{P}}
+%\newcommand{\E}{\mathbb{E}}
+\newcommand{\ind}{\mathbb{I}}
+\newcommand{\bxi}{\boldsymbol{\xi}}
+%\newcommand{\nrm}[1]{\left\Vert #1 \right\Vert}
+%\newcommand{\gn}{\, | \,}
+
+% not included in the previous version
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{definition}[theorem]{Definition}
+% \newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{corollary}[theorem]{Corollary}

@@ -1,0 +1,359 @@
+
+\chapter{Introduction}
+    
+\blindtext
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+\section{Definitions and notation}
+\label{sec:defnot}
+
+We will write
+$[k]:=\set{1,\ldots,k}$.
+An {\em instance space} is an abstract set $\X$.
+For a concept class $\C\subset\set{0,1}^\X$,
+if say that $\C$ {\em shatters} a set $\set{x_1,\ldots,x_k}\subset\X$
+if
+$$\C(S) = \set{ (f(x_1),f(x_2),\ldots,f(x_k)) : f\in\C}
+%\subseteq
+=
+\set{0,1}^k
+.
+$$
+%has cardinality $2^k$.
+The VC-dimension $d=d_\C$ of $\C$ is the size of the largest shattered set (or $\infty$ if $\C$ shatters
+sets of arbitrary size) \citep{MR0288823}.
+When the roles of $\X$ and $\C$ are exchanged ---
+that is, an $x\in\X$ acts on $f\in\C$
+%, which evaluates to
+via
+$x(f)=f(x)$, ---
+we refer to $\X=\C^*$ as the {\em dual} class of $\C$.
+Its VC-dimension is then $d^*=d^*_\C:=d_{\C^*}$, 
+and referred to as the \emph{dual VC dimension}.
+\citet{MR723955} showed that $d^*\le2^{d+1}$.
+
+For $\F\subset\R^\X$ and $t>0$,
+we say that $\F$ $t$-shatters
+a set $\set{x_1,\ldots,x_k}\subset\X$
+if
+$$\F(S) = \set{ (f(x_1),f(x_2),\ldots,f(x_k)) : f\in\F}\subseteq\R^k$$
+contains the translated cube $\set{-t,t}^k+r$ for some $r\in\R^k$.
+The $t$-fat-shattering dimension $d(t)=d_\F(t)$
+is the size of the largest $t$-shattered set (possibly $\infty$) \citep{alon97scalesensitive}.
+Again, the roles of $\X$ and $\F$ may be switched,
+in which case $\X=\F^*$ becomes the dual class of $\F$.
+Its $t$-fat-shattering dimension is then $d^*(t)$,
+and \citeauthor{MR723955}'s argument shows that $d^*(t) \leq 2^{d(t)+1}$.
+
+A {\em sample compression scheme} $(\kappa,\rho)$ for a hypothesis
+class $\F\subset\Y^\X$
+%(either binary or real-valued)
+is defined as follows.
+A $k$-{\em compression} function $\kappa$
+maps sequences $((x_1,y_1),\ldots,(x_m,y_m))\in\bigcup_{\ell\ge1}(\X\times\Y)^\ell$
+to elements in
+$\K=\bigcup_{\ell\le k'}(\X\times\Y)^\ell
+\times
+\bigcup_{\ell\le k''}\set{0,1}^\ell$,
+where $k'+k''\le k$.
+A {\em reconstruction} is a function $\rho:\K\to\Y^\X$.
+We say that $(\kappa,\rho)$ is a $k$-size sample compression
+scheme for $\F$
+if
+$\kappa$ is a $k$-compression and
+%there is a $k$
+%such that
+for all
+$h^*\in\F$
+and all
+$S=((x_1,h^{*}(x_1)),\ldots,(x_m,h^{*}(y_m)))$,
+we have
+$\hat h:=\rho(\kappa(S))$
+satisfies $\hat h(x_i)=h^*(x_i)$ for all $i\in[m]$.
+
+For real-valued functions, %rather than strictly requiring $\hat{h}(x_i) = h^{*}(x_i)$, 
+we say it is a \emph{uniformly $\eps$-approximate} compression scheme if 
+\[
+\max_{1 \leq i \leq m} | \hat{h}(x_i) - h^*(x_i) | \leq \eps.
+\]
+
+%-PAC learner
+%(only realizable)
+
+%binary/real-valued
+%-dual class
+%
+%-vc-dim
+%
+%-fat dim
+
+
+%-compression scheme
+
+%$c,c'$ etc is a universal constant
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\section{Main results}
+\label{sec:main-res}
+
+Throughout the paper, we implicitly assume that all hypothesis classes are {\em admissible} in the sense
+of satisfying mild measure-theoretic conditions, such as those specified in
+\citet[Section 10.3.1]{MR876079}
+or
+\citet[Appendix C]{pollard84}.
+We begin with an algorithmically efficient version
+of the learner-to-compression scheme conversion in
+\citet{DBLP:journals/jacm/MoranY16}:
+
+\begin{theorem}[Efficient compression for classification]
+  \label{thm:classification}
+  Let $\C$ be a concept class
+  over some instance space $\X$
+  with VC-dimension $d$, dual VC-dimension $d^*$,
+  and suppose that $\calA$ is a (proper, consistent) PAC-learner for $\C$:
+  For all $0<\eps,\delta<1/2$, all $f^*\in\C$, and all distributions $D$ over $\X$,
+  if $\calA$ receives $m\ge
+  %O(\frac{d}{\eps}\log\frac{d}{\eps})
+  m_\C(\eps,\delta)
+  $ points $S=\set{x_i}$ drawn
+  iid from $D$
+  and labeled with $y_i=f^*(x_i)$,
+  then
+  $\calA$ outputs
+an
+$\hat f\in\C$
+such that
+\beq
+\P_{S\sim D^m}\paren{ \P_{X\sim D}\paren{\hat f(X)\neq f^*(X)\gn S} >\eps}<\delta.
+\eeq
+For every such $\calA$,
+there is
+%then there exists
+a randomized sample compression scheme for $\C$ of size
+$O(k\log k)$, where $k=O(dd^*)$.
+Furthermore,
+on a sample of any size $m$,
+the compression set may be computed in
+expected
+time
+%this compression is achievable within runtime
+\beq
+O\paren{
+  (m + \tlearn(cd))\log m
+  +
+  m \teval(cd) (d^* + \log m)
+},
+\eeq
+%\todoi{AK$\to$Meni: isn't randomness involved in our compression -- so shouldn't this be expected runtime?}
+where $\tlearn(\ell)$ is the runtime of $\calA$ to compute $\hat f$
+on a sample of size $\ell$,
+$\teval(\ell)$ is the runtime required to evaluate $\hat f$ on a single $x\in\X$,
+and $c$ is a universal constant.
+\end{theorem}
+Although for our purposes the existence of a distribution-free
+sample complexity
+$m_\C$
+is more important than its concrete form,
+we may take 
+%the latter may be assumed to be of order
+$
+m_\C(\eps,\delta)=
+O(\frac{d}{\eps}\log\frac{1}{\eps} + \frac{1}{\eps}\log\frac{1}{\delta})$
+%\citep{DBLP:journals/iandc/HausslerLW94}. %%% SH: that learner was improper actually, and the \frac{d}{\eps}\log\frac{1}{\delta} bound is generally not always achievable by a proper learner.
+\citep{MR0474638,MR1072253}, 
+known to bound the sample complexity of empirical risk minimization; 
+indeed, this loses no generality, as there is a well-known efficient reduction 
+from empirical risk minimization to any proper learner having a polynomial sample complexity \citep{pitt1988computational,haussler1991equivalence}. 
+We allow the evaluation time of $\hat f$ to depend on the size of
+the training sample in order to account for non-parametric learners, such as nearest-neighbor classifiers.
+A naive implementation of the
+\citet{DBLP:journals/jacm/MoranY16}
+existence proof
+yields a runtime of order
+$
+m^{cd}\tlearn(c'd)
++
+m^{cd^*}$
+(for some universal constants $c,c'$),
+which can be doubly exponential when $d^*=2^d$;
+this is
+%just to build the ``game matrix'',
+%on which a linear program must 
+without taking into account the cost of
+computing the minimax distribution on the $m^{cd}\times m$
+game matrix.
+
+
+Next, we extend the result in
+Theorem~\ref{thm:classification}
+from classification to regression:
+\begin{theorem}[Efficient compression for regression]
+  \label{thm:regression}
+  Let $\F\subset[0,1]^\X$
+  %over some instance spaec $\X$
+  be a function class
+  with
+  $t$-fat-shattering dimension $d(t)$,
+  dual $t$-fat-shattering dimension $d^*(t)$,
+%  and suppose that $\calA$ is a (proper, consistent) PAC-learner for $\F$:
+  and suppose that $\calA$ is an ERM (i.e., proper, consistent) learner for $\F$:
+%  For all $0<\eps,\delta<1/2$, all 
+For all $f^*\in\C$, and all distributions $D$ over $\X$,
+  if $\calA$ receives $m$ 
+%\ge
+%  m_\F(\eps,\delta)
+  %O(\frac{d}{\eps}\log\frac{d}{\eps})
+%  $ 
+points $S=\set{x_i}$ drawn
+  iid from $D$
+  and labeled with $y_i=f^*(x_i)$,
+  then
+%with some runtime complexity $\tau_\calA(m)$,
+  $\calA$ outputs
+%the classifier
+an
+$\hat f\in\F$
+such that $\max_{i\in[m]}\abs{\hat f(x_i)-f^*(x_i)}=0$.
+%and
+%\beq
+%\P_{S\sim D^m}
+%\paren{
+ % \E_{X\sim D}\sqprn{
+ % \abs{\hat f(X)- f^*(X)}
+%\gn S} >\eps
+  %}
+%<\delta.
+%\eeq
+For every such $\calA$,
+there is
+%then there exists
+a randomized
+uniformly $\eps$-approximate sample compression scheme for $\F$ of size %%% TODO: we should really be defining this *before* the theorem.
+$O(k\tilde{m} \log( k \tilde{m} ) )$, where
+$\tilde m=O(d(c\eps)\log(1/\eps))$
+and
+$k=O(d^*(c\eps)\log(d^*(c\eps)/\eps))$.
+%\todoi{AK$\to$Meni: $k=O(?)$}
+Furthermore,
+on a sample of any size $m$,
+the compression set may be computed in
+expected
+time
+%this compression is achievable within runtime
+\beq
+O(m \teval(\tilde m) (k + \log m) +
+\tlearn(\tilde m)\log(m)),
+\eeq
+%\todoi{AK$\to$Meni: give correct runtime}
+where $\tlearn(\ell)$ is the runtime of $\calA$ to compute $\hat f$
+on a sample of size $\ell$,
+$\teval(\ell)$ is the runtime required to evaluate $\hat f$ on a single $x\in\X$,
+and $c$ is a universal constant.
+\end{theorem}  
+%Here again the exact form of $m_{\F}$
+%is not essential;
+%barring measure-theoretic pathologies,
+%it
+%and may be taken
+%to be
+%$$m_\F(\eps,\delta)=
+%O\paren{
+%%  \frac1{\eps^2}\paren{\frac{d(\eps/5)}{\eps}\log\frac1\eps+\log\frac1\delta}
+ % %
+  %\frac1{\eps}\paren{d(c\eps)\log\frac1\eps+\log\frac1\delta}
+  %},
+%$$
+%%\citep{DBLP:journals/jcss/BartlettL98}.
+%where $c$ is a universal constant
+%\citep[Theorem 20.10]{MR1741038}.
+
+
+A key component in the above result is our construction
+of a generic $(\dev,\adv)$-weak learner.
+\begin{definition}
+  \label{def:weak}
+  For $\dev \in [0,1]$ and $\adv \in [0,1/2]$,
+  we say that $f:\X\to\R$ is an  
+  an \emph{$(\dev,\adv)$-weak hypothesis}
+  (with respect to distribution $D$ and target $f^*\in\F$)
+%is a 
+%function $f$ with $P( x : |f(x) - f^{*}(x)| > \dev ) \leq \frac{1}{2} - \adv$.
+if $$\P_{X\sim D}(|f(X)-f^*(X)|>\dev)\le \frac12-\adv.$$
+\end{definition}
+%We say that $f:\X\to\R$ is an
+%$(\dev,\adv)$-weak hypothesis
+%(with respect to distribution $D$ and target $f^*\in\F$)
+%if $\P_{X\sim D}(|f(X)-f^*(X)|>\dev)\le \frac12-\adv$.
+
+\begin{theorem}[Generic weak learner]
+  \label{thm:gen-weak-learn}
+  Let $\F\subset[0,1]^\X$ be a
+  %admissible\footnote{
+  %  state some standard measure-theoretic conditions}
+  %\todoi{admissible=?}
+  function class
+  with $t$-fat-shattering dimension $d(t)$.
+For some universal numerical constants $c_{1},c_{2},c_{3} \in (0,\infty)$, 
+for any $\dev,\delta \in (0,1)$ and $\adv \in (0,1/4)$,
+any $f^*\in\F$,
+and any distribution $D$,
+letting $X_{1},\ldots,X_{m}$ be drawn iid from $D$, where 
+\begin{equation*}
+  m = \left\lceil c_{1} \left(  d(c_{2} \dev ) \ln\!\left( \frac{c_{3}}{\dev} \right) + \ln\!\left(\frac{1}{\delta}\right) \right) \right\rceil,
+\end{equation*}
+with probability at least $1-\delta$, every $f \in \F$ with
+$
+\max_{i\in[m]}
+|f(X_{i}) - f^{*}(X_{i})| = 0$
+is an $(\dev,\adv)$-weak hypothesis
+with respect to $D$ and $f^*$.
+\end{theorem}
+%\begin{proof}
+%The result follows immediately from combining Theorem~\ref{thm:weak-learning-bound} and Lemma~\ref{lem:eps-gam-covering-numbers}.
+%\end{proof}
+
+In fact, our results would also allow us to use any hypothesis $f \in \F$ with 
+$\max_{i \in [m]} |f(X_{i}) - f^{*}(X_{i})|$ bounded below $\dev$: for instance, 
+bounded by $\dev / 2$.  This can then also be plugged into the construction of the 
+compression scheme and this criterion can be used in place of consistency in Theorem~\ref{thm:regression}.
+
+%\todoi{Mention applications: NN and BV regression}
+
+In the
+%Appendix,
+supplementary material,
+we give applications to sample compression
+for nearest-neighbor
+and
+bounded-variation regression.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\section{Related work}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\section{Our contribution}
+
+\blindmathpaper
+
+
+
+
+
+

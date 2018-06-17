@@ -1,0 +1,217 @@
+\chapter{Boosting Real-Valued Functions}
+\label{subsec:real-boosting}
+
+As mentioned above, the notion of a \emph{weak learner} for learning real-valued functions must be formulated carefully.
+The na\"{i}ve thought that we could take any learner guaranteeing, say, absolute loss at most $\frac{1}{2}-\adv$ 
+is known to not be strong enough to enable boosting to $\eps$ loss.  However, if we make the requirement too strong, 
+such as in
+%the work of
+%\cite{adaboostr},
+\citet{FreundSchapire97}
+for
+{\tt AdaBoost.R},
+then the sample complexity of weak learning will be so high that weak learners cannot 
+be expected to exist for large classes of functions.  %%% SH: We should be sure to say somewhere (either here or related work) what's wrong with their notion: it seems to require pseudo-dim number of samples.
+However,
+our Definition~\ref{def:weak},
+%the following definition,
+which has been proposed independently by \citet{DBLP:journals/siamcomp/Simon97} and \citet{kegl2003robust},
+appears to yield the appropriate notion of \emph{weak learner} for boosting real-valued functions.
+
+%\begin{definition}
+%For $\dev \in [0,1]$ and $\adv \in [0,1/2]$, 
+%an \emph{$(\dev,\adv)$-weak hypothesis} is a 
+%function $f$ with $P( x : |f(x) - f^{*}(x)| > \dev ) \leq \frac{1}{2} - \adv$.
+%\end{definition}
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{The MedBoost Algorithm}
+
+In the context of boosting for real-valued functions, 
+the notion of an $(\dev,\adv)$-weak hypothesis plays a role analogous to 
+the usual notion of a weak hypothesis in boosting for classification.
+Specifically, the following boosting algorithm was proposed by \citet{kegl2003robust}.
+
+\subsection{The algorithm}
+
+As it will be convenient for our later results, we express
+its output as a sequence
+%the return value as vectors
+of functions and weights; 
+the boosting guarantee from \citet{kegl2003robust} applies to the weighted quantiles (and in particular, the weighted median) of these function values.
+
+\begin{algorithm}
+\label{alg:medboost}
+\caption{\algname{MedBoost}($\{(x_i,y_i)\}_{i\in[m]}$,$T$,$\adv$,$\dev$)}
+\begin{algorithmic}
+%\Procedure{\algname{MedBoost}}{$Z$,$T$,$\adv$}
+\State Define $P_{0}$ as the uniform distribution over $\{1,\ldots,n\}$
+\For $t=0,\ldots,T$
+    \State Call weak learner to get $h_{t}$ and $(\dev/2,\adv)$-weak hypothesis wrt $(x_{i},y_{i})\! :\! i \!\sim\! P_{t}$\\ (repeat until it succeeds)
+    \For $i = 1,\ldots,m$
+      \State $\theta_{i}^{(t)} \gets 1 - 2 \ind[ |h_{t}(x_{i}) - y_{i}| > \dev/2 ]$
+    \EndFor
+%    \STATE $\alpha_{t} \gets {\rm argmin}_{\alpha} e^{\adv \alpha} \sum_{i=1}^{m} P_{t}(i) e^{-\alpha \theta_{i}^{(t)}}$
+    \State $\alpha_{t} \gets \frac{1}{2} \ln\!\left( \frac{ (1-\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = 1 ] }{ (1+\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = -1 ] } \right)$
+    \If $\alpha_{t} = \infty$ % h_{t} is already uniformly \dev-close to all y_i
+      \State Return $T$ copies of $h_{t}$, and $(1,\ldots,1)$
+    \EndIf
+    %\If $\alpha_{t} < 0$ %%% only happens if the weak learner fails.  so let's not worry about this case.
+    \For {$i = 1,\ldots,m$}
+      \State $P_{t+1}(i) \gets P_{t}(i) \frac{\exp\{-\alpha_{t}\theta_{i}^{(t)}\}}{\sum_{j=1}^{m} P_{t}(j) \exp\{-\alpha_{t}\theta_{j}^{(t)}\}}$
+    \EndFor
+\EndFor
+\State Return $(h_{1},\ldots,h_{T})$ and $(\alpha_{1},\ldots,\alpha_{T})$ %corresponding to final estimator $H(x) = {\rm Median}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$
+%\EndProcedure\State Define $P_{0}$ as the uniform distribution over $\{1,\ldots,n\}$
+\For $t=0,\ldots,T$
+    \State Call weak learner to get $h_{t}$ and $(\dev/2,\adv)$-weak hypothesis wrt $(x_{i},y_{i})\! :\! i \!\sim\! P_{t}$\\ (repeat until it succeeds)
+    \For $i = 1,\ldots,m$
+      \State $\theta_{i}^{(t)} \gets 1 - 2 \ind[ |h_{t}(x_{i}) - y_{i}| > \dev/2 ]$
+    \EndFor
+%    \STATE $\alpha_{t} \gets {\rm argmin}_{\alpha} e^{\adv \alpha} \sum_{i=1}^{m} P_{t}(i) e^{-\alpha \theta_{i}^{(t)}}$
+    \State $\alpha_{t} \gets \frac{1}{2} \ln\!\left( \frac{ (1-\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = 1 ] }{ (1+\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = -1 ] } \right)$
+    \If $\alpha_{t} = \infty$ % h_{t} is already uniformly \dev-close to all y_i
+      \State Return $T$ copies of $h_{t}$, and $(1,\ldots,1)$
+    \EndIf
+    %\If $\alpha_{t} < 0$ %%% only happens if the weak learner fails.  so let's not worry about this case.
+    \For {$i = 1,\ldots,m$}
+      \State $P_{t+1}(i) \gets P_{t}(i) \frac{\exp\{-\alpha_{t}\theta_{i}^{(t)}\}}{\sum_{j=1}^{m} P_{t}(j) \exp\{-\alpha_{t}\theta_{j}^{(t)}\}}$
+    \EndFor
+\EndFor
+\State Return $(h_{1},\ldots,h_{T})$ and $(\alpha_{1},\ldots,\alpha_{T})$ %corresponding to final estimator $H(x) = {\rm Median}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$
+%\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{sloppypar}
+Here we define the weighted median as 
+\begin{equation*}
+%$
+\text{Median}(y_{1},\ldots,y_{T};\alpha_{1},\ldots,\alpha_{T}) = \min\!\left\{ y_{j} : \frac{\sum_{t=1}^{T} \alpha_{t} \ind[ y_{j} < y_{t} ] }{\sum_{t=1}^{T} \alpha_{t}} < \frac{1}{2} \right\}.
+%$
+\end{equation*}
+Also define the weighted \emph{quantiles}, for $\adv \in [0,1/2]$, as 
+\begin{align*}
+Q_{\adv}^{+}(y_{1},\ldots,y_{T};\alpha_{1},\ldots,\alpha_{T}) & = \min\!\left\{ y_{j} : \frac{\sum_{t=1}^{T} \alpha_{t} \ind[ y_{j} < y_{t} ] }{\sum_{t=1}^{T} \alpha_{t}} < \frac{1}{2} - \adv \right\}
+\\ Q_{\adv}^{-}(y_{1},\ldots,y_{T};\alpha_{1},\ldots,\alpha_{T}) & = \max\!\left\{ y_{j} : \frac{\sum_{t=1}^{T} \alpha_{t} \ind[ y_{j} > y_{t} ] }{\sum_{t=1}^{T} \alpha_{t}} < \frac{1}{2} - \adv \right\},
+\end{align*}
+and abbreviate $Q_{\adv}^{+}(x) = Q_{\adv}^{+}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$ and $Q_{\adv}^{-}(x) = Q_{\adv}^{-}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$ 
+for $h_{1},\ldots,h_{T}$ and $\alpha_{1},\ldots,\alpha_{T}$ the values returned by \algname{MedBoost}.
+%The latter algorithm is reproduced as Algorithm~\ref{alg:medboost}
+%in the %supplementary material.
+%appendix.
+\end{sloppypar}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\subsection{Analysis}
+
+\paragraph{Lemma 5}
+
+
+Then \citet{kegl2003robust} proves the following result.
+
+\begin{lemma}
+\label{lem:kegl}
+(\citet{kegl2003robust}) 
+For a training set $Z = \{(x_{1},y_{1}),\ldots,(x_{m},y_{m})\}$ of size $m$, 
+the return values of \algname{MedBoost} satisfy 
+\begin{equation*}
+\frac{1}{m} \sum_{i=1}^{m} \ind\!\left[ \max\!\left\{ \left| Q_{\adv/2}^{+}(x_{i}) - y_{i} \right|, \left| Q_{\adv/2}^{-}(x_{i}) - y_{i} \right| \right\} > \dev/2 \right] 
+\leq \prod_{t=1}^{T} e^{\adv \alpha_{t}} \sum_{i=1}^{m} P_{t}(i) e^{-\alpha_{t} \theta_{i}^{(t)}}.
+\end{equation*}
+\end{lemma}
+
+We note that, in the special case of binary classification, \algname{MedBoost}
+is closely related to the well-known AdaBoost algorithm
+\citep{FreundSchapire97}, 
+and the above results correspond to a
+%classic
+standard
+margin-based analysis of
+\citet{MR1673273}.
+%AK: did you mean this?
+%\citet{adaboost-margin-analysis}.  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\paragraph{Corollary 6}
+
+For our purposes, we will need the following immediate corollary of this, 
+which follows from plugging in the values of $\alpha_{t}$ and using the weak learning assumption, 
+which implies $\sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = 1 ] \geq \frac{1}{2} + \gamma$ for all $t$.
+
+\begin{corollary}
+\label{cor:kegl-T-size}
+For $T = \Theta\!\left(\frac{1}{\adv^{2}} \ln(m)\right)$, 
+every $i \in \{1,\ldots,m\}$ has 
+\begin{equation*}
+\max\!\left\{ \left| Q_{\adv/2}^{+}(x_{i}) - y_{i} \right|, \left| Q_{\adv/2}^{-}(x_{i}) - y_{i} \right| \right\} \leq \dev/2.
+\end{equation*}
+\end{corollary}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\section{The Sample Complexity of Weak Learning}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\subsection{The Notion of "Weak Learning"}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+
+\subsection{Upper Bound on The Sample Complexity of Weak Learning}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+
+\subsection{Tightness of The Upper Bound}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+\paragraph{Simon's lower bound}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+
+\paragraph{Simon's open question}
+
+\blindmathpaper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+
+
