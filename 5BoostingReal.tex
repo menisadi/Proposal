@@ -43,46 +43,27 @@ its output as a sequence
 of functions and weights; 
 the boosting guarantee from \citet{kegl2003robust} applies to the weighted quantiles (and in particular, the weighted median) of these function values.
 
-\begin{algorithm}
+\begin{algorithm}[H]
 \label{alg:medboost}
 \caption{\algname{MedBoost}($\{(x_i,y_i)\}_{i\in[m]}$,$T$,$\adv$,$\dev$)}
-\begin{algorithmic}
-%\Procedure{\algname{MedBoost}}{$Z$,$T$,$\adv$}
+\begin{algorithmic}[1]
 \State Define $P_{0}$ as the uniform distribution over $\{1,\ldots,n\}$
-\For $t=0,\ldots,T$
-    \State Call weak learner to get $h_{t}$ and $(\dev/2,\adv)$-weak hypothesis wrt $(x_{i},y_{i})\! :\! i \!\sim\! P_{t}$\\ (repeat until it succeeds)
-    \For $i = 1,\ldots,m$
-      \State $\theta_{i}^{(t)} \gets 1 - 2 \ind[ |h_{t}(x_{i}) - y_{i}| > \dev/2 ]$
+\For{$t=0,\ldots,T$} % MS - had problem with long lines, the solution is not so elegant
+    \State Call weak learner to get $h_{t}$ and $(\dev/2,\adv)$-weak hypothesis\\ 
+    \hspace{0.625cm} w.r.t. $(x_{i},y_{i})\! :\! i \!\sim\! P_{t}$ (repeat until it succeeds)
+    \For{$i = 1,\ldots,m$}
+        \State $\theta_{i}^{(t)} \gets 1 - 2 \ind[ |h_{t}(x_{i}) - y_{i}| > \dev/2 ]$
     \EndFor
-%    \STATE $\alpha_{t} \gets {\rm argmin}_{\alpha} e^{\adv \alpha} \sum_{i=1}^{m} P_{t}(i) e^{-\alpha \theta_{i}^{(t)}}$
     \State $\alpha_{t} \gets \frac{1}{2} \ln\!\left( \frac{ (1-\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = 1 ] }{ (1+\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = -1 ] } \right)$
-    \If $\alpha_{t} = \infty$ % h_{t} is already uniformly \dev-close to all y_i
-      \State Return $T$ copies of $h_{t}$, and $(1,\ldots,1)$
+    \If{$\alpha_{t} = \infty$} % h_{t} is already uniformly 
+        \State Return $T$ copies of $h_{t}$, and $(1,\ldots,1)$
     \EndIf
     %\If $\alpha_{t} < 0$ %%% only happens if the weak learner fails.  so let's not worry about this case.
     \For {$i = 1,\ldots,m$}
-      \State $P_{t+1}(i) \gets P_{t}(i) \frac{\exp\{-\alpha_{t}\theta_{i}^{(t)}\}}{\sum_{j=1}^{m} P_{t}(j) \exp\{-\alpha_{t}\theta_{j}^{(t)}\}}$
+        \State $P_{t+1}(i) \gets P_{t}(i) \frac{\exp\{-\alpha_{t}\theta_{i}^{(t)}\}}{\sum_{j=1}^{m} P_{t}(j) \exp\{-\alpha_{t}\theta_{j}^{(t)}\}}$
     \EndFor
 \EndFor
 \State Return $(h_{1},\ldots,h_{T})$ and $(\alpha_{1},\ldots,\alpha_{T})$ %corresponding to final estimator $H(x) = {\rm Median}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$
-%\EndProcedure\State Define $P_{0}$ as the uniform distribution over $\{1,\ldots,n\}$
-\For $t=0,\ldots,T$
-    \State Call weak learner to get $h_{t}$ and $(\dev/2,\adv)$-weak hypothesis wrt $(x_{i},y_{i})\! :\! i \!\sim\! P_{t}$\\ (repeat until it succeeds)
-    \For $i = 1,\ldots,m$
-      \State $\theta_{i}^{(t)} \gets 1 - 2 \ind[ |h_{t}(x_{i}) - y_{i}| > \dev/2 ]$
-    \EndFor
-%    \STATE $\alpha_{t} \gets {\rm argmin}_{\alpha} e^{\adv \alpha} \sum_{i=1}^{m} P_{t}(i) e^{-\alpha \theta_{i}^{(t)}}$
-    \State $\alpha_{t} \gets \frac{1}{2} \ln\!\left( \frac{ (1-\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = 1 ] }{ (1+\adv) \sum_{i=1}^{m} P_{t}(i) \ind[ \theta_{i}^{(t)} = -1 ] } \right)$
-    \If $\alpha_{t} = \infty$ % h_{t} is already uniformly \dev-close to all y_i
-      \State Return $T$ copies of $h_{t}$, and $(1,\ldots,1)$
-    \EndIf
-    %\If $\alpha_{t} < 0$ %%% only happens if the weak learner fails.  so let's not worry about this case.
-    \For {$i = 1,\ldots,m$}
-      \State $P_{t+1}(i) \gets P_{t}(i) \frac{\exp\{-\alpha_{t}\theta_{i}^{(t)}\}}{\sum_{j=1}^{m} P_{t}(j) \exp\{-\alpha_{t}\theta_{j}^{(t)}\}}$
-    \EndFor
-\EndFor
-\State Return $(h_{1},\ldots,h_{T})$ and $(\alpha_{1},\ldots,\alpha_{T})$ %corresponding to final estimator $H(x) = {\rm Median}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T})$
-%\EndProcedure
 \end{algorithmic}
 \end{algorithm}
 
@@ -112,7 +93,7 @@ for $h_{1},\ldots,h_{T}$ and $\alpha_{1},\ldots,\alpha_{T}$ the values returned 
 
 \subsection{Analysis}
 
-\paragraph{Lemma 5}
+\paragraph{Lemma 5} % MS - change this later
 
 
 Then \citet{kegl2003robust} proves the following result.
@@ -143,7 +124,7 @@ margin-based analysis of
     
 
 
-\paragraph{Corollary 6}
+\paragraph{Corollary 6} % MS - change this later
 
 For our purposes, we will need the following immediate corollary of this, 
 which follows from plugging in the values of $\alpha_{t}$ and using the weak learning assumption, 
