@@ -1,7 +1,77 @@
 
 \chapter{From Boosting to Compression}
     
-\blindtext
+\label{subsec:boosting-to-compression}
+
+%%% A little intro discussion, featuring a summary of Moran-Yehudayoff's technique, and observation that it works just as well for binary classification with the ensemble returned by a boosting algorithm.
+%%% But beyond this, we extend the technique to compression for real-valued functions, in this case meaning uniform $\eps$ loss.
+
+Generally, our strategy for converting the boosting algorithm \algname{MedBoost} into a sample compression scheme of smaller size 
+follows a strategy of Moran and Yehudayoff for binary classification, based on arguing that because the ensemble makes its predictions 
+with a \emph{margin} (corresponding to the results on \emph{quantiles} in Corollary~\ref{cor:kegl-T-size}), 
+it is possible to recover the same proximity guarantees for the predictions while using only a smaller \emph{subset} of the 
+functions from the original ensemble.  Specifically, we use the following general \emph{sparsification} strategy.
+
+For $\alpha_{1},\ldots,\alpha_{T} \in [0,1]$ with $\sum_{t=1}^{T} \alpha_{t} = 1$, 
+denote by $Cat(\alpha_{1},\ldots,\alpha_{T})$ the \emph{categorical distribution}: 
+i.e., the discrete probability distribution on $\{1,\ldots,T\}$ with probability mass $\alpha_{t}$ on $t$.
+
+\begin{algorithm}[h]
+%  \caption{Compression using boosting}
+  \caption{\algname{Sparsify}($\{(x_i,y_i)\}_{i\in[m]},\adv,T,n$)}
+  \begin{algorithmic}[1]
+%    \Procedure{\algname{Sparsify}}{$A,Y,y,n$}
+%    \State define $P_0$ as the uniform distribution over Y
+%    \For{$t \gets [0,\lceil 159 \cdot ln(n) \rceil]$} % as T > 158.3.. ln(n)
+%      \State Sample $S_t \sim P_t^{64(2309 + 16d)}$ % as s > (2304 + 2ln(4/delta))/epsilon^2
+%      \State $f_t = \mathcal{H}(S_t)$
+%      \If{$M(P_t,f_t) < 7/8$} % epsilon = 1/8
+%        \State go back to step 4
+%      \EndIf
+%      \ForAll{$i \in \{1,...,n\}$} % verify I didn't switch n and m
+%      \State $P_{t+1}(i) = P_t(i) \cdot \exp\left(-0.106 \cdot \mathbbm{1}[f_t(x_i) = y_i] \right)$ % eta < 0.10629...
+%      \EndFor
+%    \EndFor
+    \State Run \algname{MedBoost}($\{(x_i,y_i)\}_{i\in[m]},T,\adv,\dev$)
+    \State Let $h_{1},\ldots,h_{T}$ and $\alpha_{1},\ldots,\alpha_{T}$ be its return values 
+    \State Denote $\alpha_{t}^{\prime} = \alpha_{t} / \sum_{t^{\prime}=1}^{T} \alpha_{t^{\prime}}$ for each $t\in[T]$
+%    \STATE Let $n = 64(2309 + 16d^*)$ % r  > (2304 + d + 2ln(4/delta))/epsilon^2
+    \Repeat
+      \State Sample $(J_{1},\ldots,J_{n}) \sim Cat(\alpha_{1}^{\prime},\ldots,\alpha_{T}^{\prime})^{n}$ %(where ${\rm Cat}(\ldots)$ is the \emph{categorical distribution})
+      \State Let $F = \{ h_{J_{1}},\ldots, h_{J_{n}} \}$
+%    \ForAll{$x \in Y$}
+%\State For all $x \in Y$
+%    \If {$|\{f \in F: f(x) = y(x)\}| / (64(2309 + 16d^*)) < 1/2$}
+      \Until {$\max_{1 \leq i \leq m} |\{f \in F: |f(x_{i}) - y_{i}| > \dev\}| < n/2$} 
+%      \STATE Go back to step 3
+%    \EndIf    
+%    \EndFor
+%    \State $Z := \bigcup_{f_t \in F}S_t$
+%    \State encode the side information I
+%    \State return (Z,I)    
+      \State Return $F$
+%    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+For any values $a_{1},\ldots,a_{n}$, denote the (unweighted) median 
+\begin{equation*}
+\emph{Med}(a_{1},\ldots,a_{n}) = \emph{Median}(a_{1},\ldots,a_{n}; 1,\ldots,1).
+\end{equation*}
+Our intention in dicussing the above algorithm is to argue that, for a sufficiently large choice of $n$, 
+the above procedure returns a set $\{f_{1},\ldots,f_{n}\}$ such that 
+\[
+\forall i\in[m], | \emph{Med}(f_{1}(x_{i}),\ldots,f_{n}(x_{i})) - y_{i} | \leq \dev.
+\]
+
+We analyze this strategy separately for binary classification and real-valued functions, 
+since the argument in the binary case is much simpler (and
+demonstrates more directly
+%shows more-evidently
+the connection to the 
+original argument of Moran and Yehudayoff), and also because we arrive at a tighter result for binary functions 
+than for real-valued functions.
+
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -9,17 +79,288 @@
 
 \section{Binary Classification}
 
-\blindmathpaper
+\label{subsubsec:binary-classification-compression}
+
+We begin with the simple observation about binary classification (i.e., where the functions in $\F$ all map into $\{0,1\}$).
+The technique here is quite simple, and follows a similar line of reasoning to the 
+original argument of Moran and Yehudayoff.  The argument for real-valued functions 
+below will diverge from this argument in several important ways, but the high level 
+ideas remain the same.
+
+%compression algorithm for binary classification:
+The compression function is essentially the one introduced by Moran and Yehudayoff, 
+except applied to the classifiers produced by the above \algname{Sparsify} procedure, 
+rather than a set of functions selected by a minimax distribution over all classifiers produced by $O(d)$ samples each.
+The weak hypotheses in \algname{MedBoost} for binary classification can be obtained using samples of size $O(d)$.
+Thus, if the \algname{Sparsify} procedure is successful in finding $n$ such classifiers whose median predictions are 
+within $\dev$ of the target $y_{i}$ values for all $i$, 
+then we may encode these $n$ classifiers as a compression set, 
+consisting of the set of $k = O(nd)$ samples used to train these classifiers, 
+together with $k \log k$ extra bits to encode the order of the samples.\footnote{In fact, 
+$k \log n$ bits would suffice if the weak learner is permutation-invariant in its data set.}
+%%% SH: We don't really need the order info within the n samples, nor do we need the order of the n samples relative to each other.
+To obtain Theorem~\ref{thm:classification}, it then suffices to argue that $n=\Theta(d^{*})$ is a sufficient value.
+The proof follows.
+
+\begin{proof}[Proof of Theorem~\ref{thm:classification}]
+%$VC(\mathcal{F}) = d^* < \infty$
+Recall that $d^{*}$ bounds the VC dimension of the class of sets $\{ \{ h_{t} : t \leq T, h_{t}(x_i) = 1 \} : 1 \leq i \leq m \}$.
+Thus for the iid samples $h_{J_{1}},\ldots,h_{J_{n}}$ obtained in \algname{Sparsify}, 
+for $n = 64(2309 + 16d^*) > \frac{2304 + 16d^*+\log(2)}{1/8}$, % with distribution $\unif(\{f_1,...,f_{159\ln(n})\})^r$
+by the
+%classical
+VC
+uniform convergence inequality of %Vapnik and Chervonenkis 
+\citet{MR0288823}, 
+%\citet{vapnik2015uniform} 
+%(with $\eps_3 < 1/8$ and $\delta_2 = 1/2$) 
+with probability at least $1/2$ 
+we get that
+\begin{equation*}
+  \max_{1 \leq i \leq m} \left| \left( \frac{1}{n} \sum_{j=1}^{n} h_{J_{j}}(x_i) \right)  - \left( \sum_{t=1}^{T} \alpha^{\prime} h_{t}(x_i) \right) \right| < 1/8.
+%  \Rightarrow &\forall x \in Y: L_S(x) \geq L_D(x) - 1/8
+%                = M(x,\bar{Q}) - 1/8 \geq 1 - 2\eps_1 - 1/8 - \Delta_T \\
+%                & \qquad \qquad \qquad > 1 - 2 \cdot 1/8 - 1/8 - 1/8 = 1/2
+%                .
+\end{equation*}
+In particular, if we choose $\adv = 1/8$, $\dev = 1$, and $T = \Theta(\log(m))$ appropriately, 
+then Corollary~\ref{cor:kegl-T-size} implies that 
+every $y_i = \ind\!\left[ \sum_{t=1}^{T} \alpha^{\prime} h_{t}(x_i) \geq 1/2 \right]$ 
+and $\left| \frac{1}{2} - \sum_{t=1}^{T} \alpha^{\prime} h_{t}(x_i) \right| \geq 1/8$ 
+so that the above event would imply 
+every $y_i = \ind\!\left[ \frac{1}{n} \sum_{j=1}^{n} h_{J_{j}}(x_i) \geq 1/2 \right] = \emph{Med}(h_{J_{1}}(x_i),\ldots,h_{J_{n}}(x_i))$.
+Note that the \algname{Sparsify} algorithm need only try this sampling $\log_{2}(1/\delta)$ times to find such a set of $n$ functions.
+Combined with the description above (from \citealp{DBLP:journals/jacm/MoranY16}) 
+of how to encode this collection of $h_{J_{i}}$ functions as a sample compression set plus side information, 
+this completes the construction of the sample compression scheme.
+\end{proof}
+
+
+%K\'{e}gl's \algname{MedBoost} booster, which is just AdaBoost in this case, with $O(d)$ samples for the weak learners from standard PAC, along with $O(d^{*})$ subsampling concentration argument.
+%\subsection{Algorithm}
+%Altogether, this yields Theorem~\ref{thm:classification}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
 
-    
 \section{Real-Valued Functions}
 
 
-\blindmathpaper
+\label{subsubsec:real-valued-compression}
+
+%\begin{algorithm}
+%  \caption{Sparsification}
+%  \begin{algorithmic}[1]
+%
+%   need to fill this in.  (since the $\frac{1}{2} \pm O(\adv)$ quantile is within $\dev$, 
+%we can subsample the ensemble according to the $\alpha_{t} / \sum_{t^{\prime}} \alpha_{t^{\prime}}$ proportions).
+% \end{algorithmic}
+%\end{algorithm}
+
+Next we turn to the general case of real-valued functions (where the functions in $\F$ may generally map into $[0,1]$).
+We have the following result, which says that the \algname{Sparsify} procedure can reduce the ensemble of functions 
+from one with $T=O(\log(m)/\adv^2)$ functions in it, down to one with a number of functions \emph{independent of $m$}.
+%which though somewhat weaker  than the analogous result obtained above for binary classification, 
+
+\begin{theorem}
+\label{thm:real-sparsification}
+%With probabilility at least $3/4$, 
+%we can stop subsampling with 
+Choosing $$n = \Theta\!\left( \frac{1}{\adv^{2}} d^{*}(c\dev) \log^{2}( d^{*}(c\dev)/\dev ) \right)$$ 
+suffices for the \algname{Sparsify} procedure to return $\{f_{1},\ldots,f_{n}\}$ 
+with $$\max_{1 \leq i \leq m} | \emph{Med}(f_{1}(x_{i}),\ldots,f_{n}(x_{i})) - y_{i} | \leq \dev.$$
+\end{theorem}
+\begin{proof}
+%For any vector $v\in\mathbb{R}^d$,
+%let $v_1\le\ldots\le v_d'$ be its sorted version
+%and let $\alpha_{1},\ldots,\alpha_{d}$ be non-negative values.
+%define the operations
+%$$
+%{\rm Med}(v)
+%:=\frac12\paren{h'_{\ceil{T/2}}(x)+h'_{\ceil{(T+1)/2}}(x)}
+%$$
+%and, for $0<\adv<1/2$, the
+%%Let us define the
+%$\frac12\pm\adv$ quantile
+%%as follows:
+%$$
+%{\rm Quant}_{\frac12\pm\adv}(v)
+%:=\set{v'_{\ceil{(1/2-\adv)T}},\ldots,v'_{\floor{(1/2+\adv)T}}}.
+%$$
+%Further, if $H=\set{h_1,\ldots,h_T}$
+%is a collection of hypotheses then
+%$H(x)\in\mathbb{R}^T$ denotes the vector of their evaluations at $x$.
+%
+%
+Recall from Corollary~\ref{cor:kegl-T-size} that 
+%For $T = \Theta\!\left(\frac{1}{\adv^{2}} \ln(m)\right)$, 
+%every $i \in \{1,\ldots,m\}$ has 
+\algname{MedBoost} returns functions $h_{1},\ldots,h_{T} \in \F$ and $\alpha_{1},\ldots,\alpha_{T} \geq 0$ 
+such that $\forall i \in \{1,\ldots,m\}$, 
+\begin{equation*}
+\max\!\left\{ \left| Q_{\adv/2}^{+}(x_{i}) - y_{i} \right|, \left| Q_{\adv/2}^{-}(x_{i}) - y_{i} \right| \right\} \leq \dev/2,
+\end{equation*}
+where $\{(x_{i},y_{i})\}_{i=1}^{m}$ is the training data set.
+%Our boosting algorithm produces a
+%set of hypotheses $H=\set{h_1,\ldots,h_T}$ and $\alpha = \set{\alpha_{1},\ldots,\alpha_{T}}$ 
+%such that %their weighted median
+%$\hat f(x) =
+%%{\rm Median}(h_{1}(x),\ldots,h_{T}(x))
+%{\rm Med}(H(x))
+%$
+%satisfies $|\hat f(x)-f^*(x)|\le\dev/2$
+%for all $x_i$ in the dataset
+%$\set{x_1,\ldots,x_n}$.
+%In fact, a stronger property holds.
+
+We use this %stronger 
+property to sparsify $h_{1},\ldots,h_{T}$ from $T=O(\log(m)/\adv^2)$
+down to $k$
+elements, where $k$ will depend on $\dev,\adv$, and
+the dual fat-shattering
+dimension of $\F$
+(actually, just of $H = \{h_{1},\ldots,h_{T}\}\subseteq\F$)
+--- but {\bf not} sample size $m$.
+
+Letting $\alpha_{j}^{\prime} = \alpha_{j} / \sum_{t=1}^{T} \alpha_{t}$ for each $j \leq T$, 
+we will sample $k$ hypotheses $\set{\tilde h_1,\ldots,\tilde h_k}=:\tilde H\subseteq H$ 
+with each $\tilde{h}_{i} = h_{J_{i}}$, where $(J_{1},\ldots,J_{k}) \sim \emph{Cat}(\alpha_{1}^{\prime},\ldots,\alpha_{T}^{\prime})^{k}$ as in \algname{Sparsify}.
+%(where ${\rm Cat}(\ldots)$ is the \emph{categorical distribution}, as in \algname{MedBoost}).
+%uniformly at random from $H$.
+Define a function $\hat{h}(x) = \emph{Med}(\tilde{h}_{1}(x),\ldots,\tilde{h}_{k}(x))$.  % := {\rm Median}(\tilde{h}_{1}(x),\ldots,\tilde{h}_{k}(x); 1,\ldots,1)$.
+We claim that for any fixed $i\in[m]$,
+with high probability
+\begin{equation}
+  \label{eq:Htil-med}
+%|{\rm Median}(\tilde H(x_i))-f^*(x_i)|\le\dev/2.
+|\hat{h}(x_i)-f^*(x_i)|\le\dev/2.
+\end{equation}
+\begin{sloppypar}
+Indeed,
+%evaluate each $h_t\in H$ at $x_i$
+%and sort the list: $h'_1(x)\le\ldots\le h'_k(x)$.
+partition the indices $[T]$ into the disjoint sets
+\begin{align*}
+%$L=\set{1,\ldots, \ceil{(1/2-\adv)T}-1}$,
+L(x) &= \set{ j \in[ T] : h_{j}(x) < Q_{\adv}^{-}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T}) },\\
+M(x) &= \set{ j \in[ T] : Q_{\adv}^{-}(h_{1}(x),...,h_{T}(x);\alpha_{1},...,\alpha_{T}) \leq\! h_{j}(x) \!\leq Q_{\adv}^{+}(h_{1}(x),...,h_{T}(x);\alpha_{1},...,\alpha_{T}) },\\
+%$M=\set{\ceil{(1/2-\adv)T},\ldots, \floor{(1/2+\adv)T}}$,
+%and
+R(x) &= \set{ j \in[ T] : h_{j}(x) > Q_{\adv}^{+}(h_{1}(x),\ldots,h_{T}(x);\alpha_{1},\ldots,\alpha_{T}) }.
+%$R=\set{\floor{(1/2+\adv)T},\ldots,T}$.
+\end{align*}
+Then %,
+%given
+%(\ref{eq:quantile}),
+the only way
+\eqref{eq:Htil-med}
+can fail is if half or more indices %$j\in[T]$
+$J_{1},\ldots,J_{k}$ sampled fall into $R(x_i)$ --- or if half or more fall into $L(x_i)$.
+%Since the uniform distribution puts a mass of at most $1/2-\adv$
+Since the sampling distribution puts mass less than $1/2-\adv$ 
+on each of $R(x_i)$ and $L(x_i)$, 
+Chernoff's bound puts an upper estimate of
+$\exp(-2k\adv^2)$ on either event.
+Hence,
+\begin{equation}
+  \label{eq:Htil-med-prob}
+  \mathbb{P}\paren{|\hat{h}(x_i)-f^*(x_i)|>\dev/2}
+  \le2\exp(-2k\adv^2).
+\end{equation}
+\end{sloppypar}
+
+Next, our goal is to ensure that
+with high probability,
+\eqref{eq:Htil-med} holds simultaneously for all
+${i\in[m]}$.
+Define the map $\bxi:[m]\to\mathbb{R}^k$
+by $\bxi(i)=(\tilde{h}_{1}(x_i),\ldots,\tilde{h}_{k}(x_i))$.
+%Associate to each
+%$x_i$ the vector
+%$\bxi_i=(\tilde h_1(x_i),\ldots,\tilde h_k(x_i))\in\mathbb{R}^k$.
+Let
+%$\hat{\Xi} \subseteq\set{\xi_i:i\in[n]}=:\Xi$
+$G \subseteq[m]$
+be a minimal subset of $[m]$ such that 
+$$\max\limits_{i \in [m]} \min\limits_{j \in {G}}
+\nrm{\bxi(i)-\bxi(j)}_\infty\le\dev/2
+.
+$$
+This is just a minimal $\ell_\infty$ covering of $[m]$.
+Then
+%\footnote{
+%  abusing the Median notation; must define first for vectors and then for sets.
+%Another abuse of notation is $f^*(\hat\bxi)$, fix later.
+%}
+\begin{align*}
+  &\P\paren{
+    \exists
+    i
+    \in[m]
+    :
+    |\emph{Med}(\bxi(i))-f^*(x_i)|>\dev
+  }\le\\
+  &\sum_{j\in G}
+  \P\paren{
+    \exists i
+    :
+    |\emph{Med}(\bxi(i))-f^*(x_i)|>\dev , \nrm{\bxi(i)-\bxi(j)}_\infty\le\dev/2
+  }
+  %\P\paren{i:\nrm{\bxi(i)-\bxi(j)}_\infty\le\dev/2}
+  \le\\
+  &
+  \sum_{j\in G}
+  \P\paren{
+    |\emph{Med}(\bxi(j))-f^*(x_j)|>\dev /2
+  }
+  \le 2N_\infty([m],\dev/2)\exp(-2k\adv^2),
+\end{align*}
+where $N_\infty([m],\dev/2)$ is the $\dev /2$-covering number (under $\ell_\infty$)
+of $[m]$,
+and we used the fact that
+$$|\emph{Med}(\bxi(i))-\emph{Med}(\bxi(j))|\le\nrm{\bxi(i)-\bxi(j)}_\infty.$$
+Finally, to bound $N_\infty([m],\dev/2)$, note that
+$\bxi$
+embeds
+$[m]$
+%is embedded
+into the dual
+%function
+class
+%to
+$\F^*$.
+Thus, we may apply
+the bound in \cite[Display (1.4)]{MR2247969}:
+%Vershynin's bound\footnote{
+%  Theorem 2.8 in
+%  \url{http://maths-people.anu.edu.au/~mendelso/papers/summer02.pdf};
+%  still trying to locate a published reference.}:
+$$
+\log N_\infty([m],\dev/2)\le C d^*(c\dev)\log^2(k/\dev),
+$$
+where $C,c$ are universal constants and $d^*(\cdot)$
+is the dual fat-shattering dimension of $\F$.
+It now only remains to choose a $k$
+that makes
+$\exp\paren{C d^*(c\dev)\log^2(k/\dev)-2k\adv^2}$
+as small as desired.
+\end{proof}
+
+To establish Theorem~\ref{thm:regression}, 
+we use the weak learner from above, with the booster \algname{MedBoost} from K\'{e}gl, and then apply the \algname{Sparsify} procedure. 
+Combining the corresponding theorems, together with the same technique for converting to a compression scheme 
+discussed above for classification (i.e., encoding the functions with the set of training examples they were obtained from, plus extra bits 
+to record the order and which examples which weak hypothesis was obtained by training on), 
+this immediately yields the result claimed in Theorem~\ref{thm:regression}, 
+which represents our main new result for sample compression of general families of real-valued functions.
+
+%%% SH: It's probably best if we do eventually write in a formal version of the proof, given that this is our main result.
+%\begin{proof}[Proof of Theorem~\ref{thm:regression}]
+%... (TODO: still need to fill in the formal details)
+%\end{proof}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
