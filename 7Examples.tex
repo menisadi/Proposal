@@ -1,4 +1,3 @@
-
 \chapter{Examples}
 
 \blindtext
@@ -10,7 +9,315 @@
 
 \section{Sample compression for BV functions}
 
-\blindmathpaper
+\label{sec:BV}
+\newcommand{\gammat}{t}
+The function class $\mathrm{BV}(v)$ consists of all $f:[0,1]\to\R$ for which
+\beq
+V(f):=\sup_{n\in\N}\sup_{0=x_0<x_1<\ldots<x_n=1}\sum_{i=1}^{n-1}|f(x_{i+1})-f(x_i)| \le v.
+\eeq
+It is known
+\citep[Theorem 11.12]{MR1741038} that $d_{\mathrm{BV}(v)}(t)=1+\floor{v/(2t)}$.
+In Theorem~\ref{thm:bv-dual} below, we show that the dual class has
+$d^*_{\mathrm{BV}(v)}(t)=\Theta\left(\log(v/t)\right)$.
+\citet{DBLP:journals/iandc/Long04} presented an efficient, proper, consistent learner
+for the class $\F=\mathrm{BV}(1)$ with range restricted to $[0,1]$,
+with sample complexity
+$m_\F(\eps,\delta)=O(\frac1\eps\log\frac1\delta)$.
+Combined with Theorem~\ref{thm:regression}, this yields
+\begin{corollary}
+  Let $\F=\mathrm{BV}(1)\cap[0,1]^{[0,1]}$
+  be the class
+  %of function
+  $f:[0,1] \to [0,1]$ with $V(f)\le1$.
+  Then the proper, consistent learner $\calL$
+  of \citet{DBLP:journals/iandc/Long04},
+  with target generalization error $\eps$,
+  %enables
+  admits
+  a sample compression scheme of size $O(k\log k)$, where
+  %Let S be a sample of $n$ labeled points
+  %$(x_1,f(x_1)),...,x_n,f(x_n)) \in [0,1] \times [0,1]$ for some unknown
+  %$f \in F_1$
+  %There exist a $k\log{k}$-compression scheme for
+  \[k = \bigO{ \uf{\eps} \log^2 \uf{\eps} \cdot \log \left(\uf{\eps} \log \uf{\eps}\right)  }.\]
+The compression set is computable in expected runtime
+%  which expected run-time is in order of
+  \[
+    \bigO{  n \uf{\eps^{3.38}} \log^{3.38} \uf{\eps}
+      \left(
+        \log n + \log \uf{\eps} \log
+        \left(
+          \uf{\eps} \log \uf{\eps}
+        \right)
+        \right) }
+    .
+  \]
+\hide{
+  if we denote $\uf{\widetilde{\eps}} := \uf{\eps} \log \uf{\eps}$
+  we get that
+  \[k \in \bigO{ \uf{\widetilde{\eps}} \log \uf{\widetilde{\eps}} \log \uf{\eps}}\]
+  And the expected run-time is
+  \[\bigO{ \frac{n}{\widetilde{\eps}^{3.38}}
+      \left(
+        \log n + \log \uf{\eps} \log \uf{\widetilde{\eps}}
+        \right) }\]
+  }
+\end{corollary}
+
+
+\hide{
+We show two specific applications of the above algorithm in cases where the dual fat-shattering dimension
+is relatively low.
+
+Recall the bounded-variation property for $f:[0,1] \to [0,1]$ functions
+
+\begin{definition}
+  definition of bounded variation
+\end{definition}
+
+
+Let $F_V$ be the class of function $f:[0,1] \to [0,1]$ whose variation is bounded by $V$.
+and let $F_V^*$ be the dual function class, namely, $[0,1]$ equipped with the evaluation defined by
+\[\forall x \in [0,1],f \in F_V : x(f) := f(x)\]
+}
+
+The remainder of this section is devoted to proving
+\begin{theorem}
+  \label{thm:bv-dual}
+  For $\F=\mathrm{BV}(v)$
+  and $t<v$,
+  we have $d^*_\F(t)=\Theta\left(\log(v/t)\right)$.
+  \hide{
+  Let $F_V$ be the class of function $f:[0,1] \to [0,1]$ whose variation is bounded by $V$.
+  and let $F_V^*$ be the dual function class, namely, $[0,1]$ equipped with the evaluation defined by
+  \[\forall x \in [0,1],f \in F_V : x(f) := f(x)\]
+  we get that
+  \[VC(F_V^*) \in \Theta\left(\log_2(V/\gammat)\right)\]
+  }
+\end{theorem}
+
+%To prove this we first define some notions and prove a result regrading class-coding-theory problems
+First, we define some preliminary notions:
+
+\begin{definition}
+  For a binary $m \times n$ matrix $M$, define
+  %  Let M be a binary matrix of size $m \times n$
+  \beq
+    V(M, i) &:=& \sum_{j=1}^m \ind[M_{j,i} \neq M_{j+1,i}],\\
+    G(M) &:=& \sum_{i=1}^n V(M,i),\\
+    V(M) &:=& \max_{i \in [n]}V(M,i).
+\eeq
+\end{definition}
+
+\begin{lemma} \label{lemma:1}
+  Let $M$ be a binary $2^n \times n$ matrix.
+  If
+for each
+$b \in \{0,1\}^n$
+there is a row $j$ in $M$
+equal to $b$,
+%\  \exists j \in [2^n] \ s.t. \ M_{j,*} = b$
+%  Then
+then
+\[V(M) \geq \frac{2^n}{n}.\]
+In particular,
+for at least one row $i$,
+we have
+%there is a row $i$ s.t.
+$V(M,i) \geq 2^n/n$.
+\end{lemma}
+
+\begin{proof}
+  Let $M$ be a $2^n \times n$
+  binary
+  such that
+for each
+$b \in \{0,1\}^n$
+there is a row $j$ in $M$
+equal to $b$.  
+%
+%  s.t.  \[\forall b \in \{0,1\}^n \  \exists j \in [2^n] \ s.t. \ M_{j,*} = b\]
+Given $M$'s dimensions,
+%size
+every
+$b \in \{0,1\}^n$ appears exactly in one row of $M$,
+and hence
+%so obviously
+the minimal Hamming distance between two rows is 1.
+Summing over the $2^n-1$ adjacent row pairs, we have
+%  There are $2^n$ rows the total Hamming-distance or ``variation'' through the matrix is at least $2^n-1$.
+\[G(M) = \sum_{i=1}^n V(M,i) = \sum_{i=1}^n\sum_{j=1}^m \ind[M_{j,i} \neq M_{j+1,i}] \geq 2^n-1,\]
+which averages to
+%  so the average of the variation is
+\[\frac{1}{n} \sum_{i=1}^n V(M,i) = \frac{G(M)}{n} \geq \frac{2^n-1}{n} .\]
+By
+%  We get by
+the pigeon-hole principle,
+there must be
+%that at there is
+a row $j \in [n]$ for which
+$V(M,i) \geq \frac{2^n-1}{n}$,
+which implies
+%  By definition this means that
+$V(M)  \geq \frac{2^n-1}{n}$.
+\end{proof}
+%\mynote{it seems that we can omit the V(M) notion}
+
+We split the proof of Theorem~\ref{thm:bv-dual} into two estimates:
+
+%Now back to the proof of \hyperref[theorem 1]{Theorem 12}. We split the proof into two lemmas
+
+\begin{lemma} \label{lem:bv-ub}
+  %$VC(\F^*) \leq 2 log_2(v/\gammat)$
+  For $\F=\mathrm{BV}(v)$ and $t<v$,
+  $d^*_\F(t)\le2\log_2(v/\gammat)$.
+\end{lemma}
+
+\begin{lemma} \label{lem:bv-lb}
+  %$VC(\F^*) \geq log_2(v/\gammat)$
+  For $\F=\mathrm{BV}(v)$ and $4t<v$,
+  $d^*_\F(t)\ge\floor{\log_2(v/\gammat)}$.
+\end{lemma}
+
+\begin{proof}[Proof of Lemma~\ref{lem:bv-ub}]
+  Let $\set{f_1,\ldots,f_n}\subset \F$ be a set of functions that are $\gammat$-shattered by $\F^*$.
+  In other words, there is an $r\in\R^n$
+  such that for each
+%
+%let $r_1,...,r_n$ bet the ``witnesses'' of the shattering.
+  %For every
+  $b \in \{0,1\}^n$
+there is an $x_b
+\in\F^*$
+such that
+%meaning that
+\[\forall i \in [n] ,
+  x_b(f_i)
+  \begin{cases}
+    \geq r_i + \gammat, & b_i = 1 \\
+    \leq r_i - \gammat, & b_i = 0
+  \end{cases}
+  .
+\]
+
+Let us order the $x_b$s by
+magnitude
+$x_1<x_2<\ldots<x_{2^n}$,
+denoting this sequence by
+$(x_i)_{i=1}^{2^n}$.
+Let $M \in \{0,1\}^{2^n \times n}$ be a matrix whose $i$th row is $b_j$,
+the latter ordered arbitrarily.
+
+%Put $B = \{x_b : b \in \{0,1\}^n\}$ and let $\{x_j\}_{j=1}^{2^n}$ the elements of $B$ ordered by the natural order on th reals.
+%On the same way denote  $\{b_j\}_{j=1}^{2^n}$ the binary vectors of length $n$ which order is induced by $B$.
+
+%Constant a matrix $M \in \{0,1\}^{2^n \times n}$ whose $j$th row is $b_j$.
+
+By Lemma~\ref{lemma:1}, there is $i \in [n]$ s.t. 
+\[\sum_{j=1}^{2^n} \ind[M(j,i) \neq M(j+1,i)] \geq \frac{2^n}{n}.\]
+Note that if
+$M(j,i) \neq M(j+1,i)$ shattering implies that
+\[x_j(f_i) \geq r_i + \gammat \text{ and } x_{j+1}(f_i) \leq r_i - \gammat\]
+or
+\[x_j(f_i) \leq r_i - \gammat \text{ and } x_{j+1}(f_i) \geq r_i + \gammat;\]
+either way,
+%we get that
+\[\abs*{f_i(x_j) - f_i(x_{j+1})} = \abs*{x_j(f_i) - x_{j+1}(f_i)} \geq 2\gammat.\]
+So
+for the function
+$f_i$,
+%the following holds
+we have
+\beq
+  \sum_{j=1}^{2^n} \abs*{f_i(x_j) - f_i(x_{j+1})} = \sum_{j=1}^{2^n} \abs*{x_j(f_i) - x_{j+1}(f_i)} 
+  \geq \sum_{j=1}^{2^n} \ind[b_{j_i} \neq b_{{j+1}_i} \cdot 2\gammat 
+  \geq \frac{2^n}{n} \cdot 2\gammat.
+\eeq
+As $\{x_j\}_{j=1}^{2^n}$ is a partition of $[0,1]$ we get
+%that
+\[v \geq \sum_{j=1}^{2^n} \abs*{f_i(x_j) - f_i(x_{j+1})} \geq  \frac{\gammat 2^{n+1}}{n} \geq \gammat 2^{n/2}\]
+and hence
+%So it must hold that
+\[v/\gammat \geq 2^{n/2}\]
+\[\Rightarrow 2\log_2(v/\gammat) \geq n.\]
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:bv-lb}]
+%  \mynote{Round the value to get a proper integers}
+  We construct a set of $n = \floor{\log_2(v/\gammat)}$ functions that are $t$-shattered by $\F^*$.
+  First, we build a balanced Gray code \citep{flahive2007balancing} with $n$ bits,
+which we arrange into the rows of $M$.
+%  $M = [b_1^T,...,b_{2^n}^T]$.  
+Divide the unit interval into $2^n
+%= v/\gammat
+$ segments and define, for each $j\in[2^n]$,
+\[
+%\forall j \in [v/\gammat] :
+x_j := \frac{j}{2^n}
+%= \frac{j\gammat}{v}
+.
+\]
+  Define the functions $f_1,\ldots,,f_{\floor{\log_2(v/\gammat)}}$ as follows:
+  \[f_i(x_j) =
+    \begin{cases}
+      \gammat, &
+      M(j,i)
+      %{b_j}_i
+      = 1
+      \\
+      -\gammat, &
+      %{b_j}_i
+      M(j,i)
+      = 0
+    \end{cases}.
+  \]
+We claim that each
+%Next we prove that indeed
+$
+%\forall i:
+f_i \in \F$.
+Since
+%As the code
+$M$ is balanced Gray code,
+%by definition
+%  \\ \mynote{we assume that $v/\gammat \geq 4$}
+\[V(M) = \frac{2^n}{n} \le \frac{v}{\gammat \log_2(v/\gammat)} \leq \frac{v}{2\gammat}.\]
+Hence, for each
+%So for every function
+$f_i$,
+we have
+%it holds that
+  \[V(f_i) \leq 2 \gammat V(M,i) \leq 2 \gammat \frac{v}{2\gammat} = .v\]
+Next, we show
+%Finally we prove
+that this set is shattered by $\F^*$.
+Fix the trivial offest $r_1=...=r_n = 0$
+For every $b \in \{0,1\}^n$ there is a $j \in [2^n]$ s.t. $b = b_i$.
+By construction,
+%it holds that
+for every
+%index
+$i \in [n]$,
+we have
+  \[x_j(f_i) = f_i(x_j) =
+    \begin{cases}
+      \gammat \geq r_i + \gammat, & M(j,i)
+              %{b_j}_i
+              = 1 \\
+              -\gammat \leq r_i - \gammat, & M(j,i)
+              %{b_j}_i
+              = 0
+    \end{cases}.
+  \]
+\end{proof}
+
+%By \hyperref[lemma:2]{Lemma 15} and \hyperref[lemma:3]{Lemma 16} we conclude that
+%\[VC(\F^*) \in \Theta\left(\log_2(v/\gammat)\right)\]
+
+%Combining this result with our prior result and using Long's algorithm Long's ***cite***
+%we can apply our compression scheme framework to get
+%a compression scheme for the $1$-bounded-variation function class
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -18,8 +325,173 @@
 
 
 \section{Sample compression for nearest-neighbor regression}
+\label{sec:NN}
+Let $(\X,\rho)$ be a metric space
+and define, for $L\ge0$, the collection $\F_L$ of all $f:\X\to[0,1]$ satisfying
+$$ |f(x)-f(x')|\le L\rho(x,x');$$
+these are the $L$-Lipschitz functions.
+\citet{GottliebKK17_IEEE} showed that
+\beq
+d_{\F_L}(t) = O\paren{ \ceil{L\diam(X)/t}^{\ddim(\X)}},
+\eeq
+where $\diam(\X)$ is the diameter and $\ddim$ is the {\em doubling dimension}, defined therein.
+The proof is achieved via a packing argument, which also shows that the estimate is tight.
+Below we show that
+$  d^*_{\F_L}(t) =
+\Theta(\log\left({M}(\X,2\gammat/L)\right))$,
+where $M(\X,\cdot)$ is the packing number of $(\X,\rho)$.
+Applying this to the efficient
+nearest-neighbor regressor\footnote{
+  In fact, the technical machinery in
+  \citet{DBLP:journals/tit/GottliebKK17}
+  was aimed at achieving {\em approximate} Lipschitz-extension,
+  so as to gain a considerable runtime speedup. An {\em exact} Lipschitz extension
+  is much simpler to achieve. It is more computationally costly but still polynomial-time in sample size.
+  }
+of
+\citet{DBLP:journals/tit/GottliebKK17},
+we obtain
+%Using this result, Gottlieb et al's bounds ***cite*** and the nearest-neighbor algorithm as a Lipschitz-regressor
+%we get that 
+\begin{corollary}
+  Let $(\X,\rho)$ be a metric space with hypothesis class $\F_L$,
+  and let $\calL$ be a consistent, proper learner for $\F_L$ with target generalization error $\eps$.
+%  Let $(\mathcal{X}, \rho)$ be a metric space. Let S be a sample of $n$ labeled points
+%  $(x_1,f(x_1)),...,x_n,f(x_n)) \in \mathcal{X} \times \mathbb{R}$ for some unknown
+%  $f \in \left( \F_L(\mathcal{X}) \right) $
+Then $\calL$ admits a compression scheme of size $O(k\log k)$, where
+%  There exist a $k\log{k}$-compression scheme for
+  \[k = \bigO{ D(\eps) \log \uf{\eps} \cdot \log D(\eps)
+      \log \left(\uf{\eps} \log D(\eps) \right) }\]
+%
+%  which expected run-time is in order of
+%  \[
+%    \bigO{ n D(\eps) \log \uf{\eps}
+%      \left( \log n + \log D(\eps) \log \left(\uf{\eps} \log D(\eps) \right) \right) }
+%  \]
+and
+%  For
+\[D(\eps) = \ceil{\frac{L\diam(\X)}{\eps}}^{\ddim(\X)}.\]
+\hide{
+  If we fix $diam(\mathcal{X}) = 1$ and $L = 1$ we get that
+  \[k \in \bigO{ \frac{d}{\eps^d} \log^2 \uf{\eps}
+      \log \left(\frac{d}{\eps} \log \uf{\eps}  \right) }\]
+  and
+  \[
+    \bigO{ \frac{n}{\eps^d} \log \uf{\eps}
+      \left(
+        \log n + d \log \uf{\eps} \log 
+        \left(
+          \frac{d}{\eps} \log \uf{\eps}
+        \right)
+      \right) }
+  \]
 
-\blindmathpaper
+  for $d := ddpim(\mathcal{X})$
+ } 
+\end{corollary}
+
+
+
+
+\hide{
+Recall that
+For a metric space $(\mathcal {X}, \rho)$
+Let $F_L(\mathcal{X})$ be the class of real-valued functions $f:\mathcal{X} \to [0,1]$ who are L-Lipschitz.
+and let $F_L^*$ be the dual function class, namely, $[0,1]$ equipped with the evaluation defined by
+\[\forall x \in \mathcal{X},f \in F_L : x(f) := f(x)\]
+
+Lipschitz function are useful in on general metric spaces as they provide the most natural
+regularized function class, when the Lipschitz-parameter L is used as the regularizator.
+}
+
+\hide{
+As before, in order to apply our framework we first need to bound the dual-dimension
+\begin{lemma}\label{lem:lip-vc}
+  For a metric space $(\mathcal {X}, \rho)$
+  Let $\F_L(\mathcal{X})$ be the class of real-valued functions $f:\mathcal{X} \to [0,1]$ who are L-Lipschitz.
+  and let $\F_L^*$ be the dual function class, namely, $[0,1]$ equipped with the evaluation defined by
+  \[\forall x \in \mathcal{X},f \in \F_L : x(f) := f(x)\] we get that
+  \[VC(\F_L^*) = log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)\]
+\end{lemma}
+
+We split the proof into two lemmas
+}
+
+We now prove our estimate on the dual fat-shattering dimension of $\F$:
+\mynote{shouldn't we add Theorem summing up the two lemmas? or is it too small result?}
+\begin{lemma}
+  %\label{lemma:1}
+  For $\F=\F_L$,
+  $d^*_\F(t)
+  \leq \log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)$.
+%  $VC(\F_L^*) \leq log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)$
+\end{lemma}
+\begin{proof}
+  Let $\set{f_1,\ldots,f_n}\subset \F_L$ a set that is $\gammat$-shattered by $\F^*_L$.
+  For $b \neq b' \in \{0,1\}^n$,
+  let $i$ be the first index
+  for which $b_i \neq b'_i$,
+  say, $b_i = 1\neq0= b'$.
+  By shattering,
+  %As the set is $\gammat$-shattered by $F^*_L$
+  there are points $x_b,x_{b'} \in \F^*_L$ such that
+  $x_b(f_i) \geq r_i + \gammat$ and
+  $x_{b'}(f_i) \leq r_i - \gammat$,
+  whence
+%  So we get that
+  \[f_i(x_b) - f_i(x_{b'}) \geq 2\gammat\]
+  and
+%  and by the Lipschitz property we get that
+  \[L  \rho(x_b,x_{b'}) \geq  f_i(x_b) - f_i(x_{b'}) \geq 2\gammat.\]
+  It follows that for
+%  So to conclude
+  %\[\forall
+  $b \neq b' \in \{0,1\}^n$,
+we have
+$ \rho(x_b,x_{b'}) \geq 2\gammat / L$.
+  Denoting by ${M}(\X, \eps)$ the $\eps$-packing number of $\X$,
+ we get
+  \[2^n = |\{x_b \mid b \in \{0,1\}^n\}| \leq \mathcal{M}(\mathcal{X}, 2\gammat / L). \]
+%  \[\Rightarrow n \leq log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)\]
+\end{proof}
+
+
+\begin{lemma}
+  %\label{lemma:2}
+  For $\F=\F_L$ and $t<L$,
+  $d^*_\F(t)  \geq \log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)$.
+%  $VpC(\F_L^*) \geq log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)$
+\end{lemma}
+\begin{proof}
+  Let $S=\{x_1,...,x_m\} \subseteq \X$
+  be a maximal
+  $2\gammat/L$-packing
+of $\X$.
+%  of size ${M}(\X,2\gammat/L)$].
+%  which is a minimal 
+%  [so it is of size $m = 
+Suppose that
+%Let
+$c: S \to \{0,1\}^{\floor{\log_2m}}$
+%some arbitrary injection.
+is one-to-one.
+Define the set of function $F = \{f_1,\ldots,f_{\floor{\log_2(m)}}\} \subseteq \F_L$ by
+  \[
+    f_i(x_j) =
+    \begin{cases}
+      \gammat, & c(x_j)_i = 1 \\
+      -\gammat, & c(x_j)_i = 0
+    \end{cases}.
+  \]
+  For every $f \in F$ and every two points $x,x' \in S$ it holds that
+  \[\abs{f(x) - f(x')} \leq 2\gammat = L \cdot 2\gammat / L \leq L  \rho(x,x').\]
+  This set of functions is $\gammat$-shattered by $S$
+  %(and from that also by $\mathcal{X}$)
+  and is of size
+  $\floor{\log_2m} = \floor{\log_2\left(\mathcal{M}(\mathcal{X},2\gammat/L)\right)}$.
+\end{proof}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
