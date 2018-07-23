@@ -146,7 +146,27 @@ every $i \in \{1,\ldots,m\}$ has
 
 \section{The Sample Complexity of Weak Learning}
 
-\blindmathpaper
+\label{subsec:weak-learning}
+
+This section reveals our intention in choosing this notion of weak hypothesis, 
+rather than using, say, an $\eps$-good strong learner under absolute loss.
+In addition to being a strong enough notion for boosting to work, 
+we show here that it is also a weak enough notion for the sample complexity 
+of weak learning to be of reasonable size: namely, a size quantified by the fat-shattering dimension.
+%which is an unavoidable complexity for learning real-valued functions.
+This result is also relevant to an open question posed by
+%Hans Simon
+\citet{DBLP:journals/siamcomp/Simon97}, 
+who proved a lower bound for the sample complexity of finding an $(\dev,\adv)$-weak hypothesis, 
+expressed in terms of a related complexity measure, 
+%also expressed in terms of the fat-shattering dimension, 
+and asked whether a related upper bound might also hold.  
+We establish a general upper bound here, witnessing the same dependence on the parameters $\dev$ and $\adv$
+as observed in Simon's lower bound (up to a log factor) aside from a difference in the key complexity measure 
+appearing in the bounds.
+%However, the fat-shattering dimension is 
+%a larger complexity measure than the corresponding factor in Simon's lower bound, and thus we do not 
+%fully resolve the open question.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -163,7 +183,191 @@ every $i \in \{1,\ldots,m\}$ has
 
 \subsection{Upper Bound on The Sample Complexity of Weak Learning}
 
-\blindmathpaper
+Define $\rho_{\dev}(f,g) = P_{2m}( x : |f(x) - g(x)| > \dev )$, where $P_{2m}$ is the empirical measure induced by $X_{1},\ldots,X_{2m}$ iid $P$-distributed random variables
+(the $m$ data points and $m$ ghost points).
+Define $N_{\dev}(\beta)$ as the $\beta$-covering numbers of $\F$
+under the $\rho_{\dev}$ pseudo-metric.
+
+\begin{theorem}
+\label{thm:weak-learning-bound}
+Fix any $\dev,\beta \in (0,1)$, $\alpha \in [0,1)$, and $m \in \mathbb{N}$. %and $m \geq 8/\beta$.
+%For some numerical constant $c > 0$, 
+For $X_{1},\ldots,X_{m}$ iid $P$-distributed, 
+with probability at least $1 - \E\!\left[ N_{\dev (1-\alpha)/2}(\beta/8) \right] 2 e^{-m \beta / 96}$, 
+every $f \in \F$ with $\max_{1 \leq i \leq m} |f(X_{i}) - f^{*}(X_{i})| \leq \alpha \dev$ 
+satisfies $P( x : | f(x) - f^{*}(x) | > \dev ) \leq \beta$.
+%is an $(\dev,\adv)$-weak hypothesis.
+\end{theorem}
+%The proof is deferred to the
+%supplementary material.
+%appendix.
+\begin{proof} %[Proof of Theorem~\ref{thm:weak-learning-bound}]
+%%% where did the covering numbers argument actually originate?  (Dudley? Pollard?)
+This proof roughly follows the usual symmetrization argument for uniform convergence \citet{MR0288823,DBLP:journals/iandc/Haussler92}, 
+with a few important modifications to account for this $(\dev,\beta)$-based criterion. %, and to use the metric $\rho_{\dev/2}$. 
+%If $m < \frac{1}{2\adv^{2}}$ then the result is trivial (for $c \leq 2$), so let us suppose $m \geq \frac{1}{2\adv^{2}}$.
+If $\E\!\left[ N_{\dev (1-\alpha)/2}(\beta/8) \right]$ is infinite, then the result is trivial, so let us suppose it is finite for the remainder of the proof.
+Similarly, if $m < 8/\beta$, then $2 e^{-m \beta/96} > 1$ and hence the claim trivially holds, so let us suppose $m \geq 8/\beta$ for the remainder of the proof.
+Without loss of generality, suppose $f^{*}(x) = 0$ everywhere and every $f \in \F$ is non-negative 
+(otherwise subtract $f^{*}$ from every $f \in \F$ and redefine $\F$ as the absolute values of the differences; 
+note that this transformation does not increase the value of $N_{\dev (1-\alpha)/2}(\beta/8)$ since applying this 
+transformation to the original $N_{\dev (1-\alpha)/2}(\beta/8)$ functions remains a cover).
+
+Let $X_{1},\ldots,X_{2m}$ be iid $P$-distributed.  Denote by $P_{m}$ the empirical measure induced by $X_{1},\ldots,X_{m}$, 
+and by $P_{m}^{\prime}$ the empirical measure induced by $X_{m+1},\ldots,X_{2m}$.
+We have 
+\begin{align*}
+& \P\!\left( \exists f \in \F : P_{m}^{\prime}( x : f(x) > \dev ) > \beta/2 \text{ and } P_{m}( x : f(x) \leq \alpha \dev ) = 1 \right)
+\\ & \geq \P\left( \exists f \in \F : P( x : f(x) > \dev ) > \beta \text{ and } P_{m}( x : f(x) \leq \alpha \dev ) = 1 
+\text{ and }  P_{m}^{\prime}( x : f(x) > \dev ) > \beta/2 \right).
+\end{align*}
+Denote by $A_{m}$ the event that there exists $f \in \F$ 
+satisfying $P( x : f(x) > \dev ) > \beta$ and $P_{m}( x : f(x) \leq \alpha \dev ) = 1$, 
+and on this event let $\tilde{f}$ denote such an $f \in \F$ (chosen solely based on $X_{1},\ldots,X_{m}$); 
+when $A_{m}$ fails to hold, take $\tilde{f}$ to be some arbitrary fixed element of $\F$.
+Then the expression on the right hand side above is at least as large as 
+\begin{equation*}
+\P\left( A_{m} \text{ and } P_{m}^{\prime}( x : \tilde{f}(x) > \dev ) > \beta/2 \right),
+\end{equation*}
+and noting that the event $A_{m}$ is independent of $X_{m+1},\ldots,X_{2m}$, this equals
+\begin{equation}
+\label{eqn:uc-factored-expression}
+\E\!\left[ \ind_{A_{m}} \cdot \P\!\left( P_{m}^{\prime}( x : \tilde{f}(x) > \dev ) > \beta/2 \middle| X_{1},\ldots,X_{m} \right) \right].
+\end{equation}
+Then note that for any $f \in \F$ with $P( x : f(x) > \dev ) > \beta$, a Chernoff bound implies 
+\begin{align*}
+  &
+  \P\Big(  P_{m}^{\prime}( x : f(x) > \dev ) > \beta/2 \Big) 
+  \\ &
+  = 1 - \P\Big( P_{m}^{\prime}( x : f(x) > \dev ) \leq \beta/2 \Big) 
+\geq 1 - \exp\!\left\{ - m \beta / 8 \right\} 
+%\geq 1 - e^{-1} 
+\geq \frac{1}{2},
+\end{align*}
+where we have used the assumption that $m \geq \frac{8}{\beta}$ here.
+In particular, this implies that the expression in \eqref{eqn:uc-factored-expression} is no smaller than 
+$\frac{1}{2} \P(A_{m})$.
+Altogether, we have established that 
+\begin{align}
+& \P\!\left( \exists f \in \F : P( x : f(x) > \dev ) > \beta \text{ and } P_{m}( x : f(x) \leq \alpha \dev ) =1 \right) \notag 
+\\ & \leq 2 \P\!\left( \exists f \in \F : P_{m}^{\prime}( x : f(x) > \dev ) > \beta/2 \text{ and } P_{m}( x : f(x) \leq \alpha \dev ) = 1 \right). \label{eqn:uc-ghost-ub}
+\end{align}
+
+Now let $\sigma(1),\ldots,\sigma(m)$ be independent random variables (also independent of the data), with $\sigma(i) \sim \emph{Uniform}(\{i,m+i\})$,
+and denote $\sigma(m+i)$ as the sole element of $\{i,m+i\} \setminus \{\sigma(i)\}$ for each $i \leq m$.
+Also denote by $P_{m,\sigma}$ the empirical measure induced by $X_{\sigma(1)},\ldots,X_{\sigma(m)}$, 
+and by $P_{m,\sigma}^{\prime}$ the empirical measure induced by $X_{\sigma(m+1)},\ldots,X_{\sigma(2m)}$.
+%and denote $\boldsymbol{\sigma} = (\sigma(1),\ldots,\sigma(m))$.
+By exchangeability of $(X_{1},\ldots,X_{2m})$, the right hand side of \eqref{eqn:uc-ghost-ub} is equal 
+\begin{equation*}
+\P\!\left( \exists f \in \F : P_{m,\sigma}^{\prime}( x : f(x) > \dev ) > \beta/2 \text{ and } P_{m,\sigma}( x : f(x) \leq \alpha \dev ) = 1 \right).
+\end{equation*}
+Now let $\hat{\F} \subseteq \F$ be a minimal subset of $\F$ such that 
+$\max\limits_{f \in \F} \min\limits_{\hat{f} \in \hat{\F}} \rho_{\dev (1-\alpha)/2}(\hat{f},f) \leq \beta/8$.
+The size of $\hat{\F}$ is at most $N_{\dev(1-\alpha)/2}(\beta/8)$, which is finite almost surely (since we have assumed above that its expectation is finite). %%% it's "at most" because \F was replaced by \{ |f-f*| : f \in \F \}.
+Then note that (denoting by $X_{[2m]} = (X_{1},\ldots,X_{2m})$) the above expression is at most 
+\begin{align}
+& \P\!\left( \exists f \in \hat{\F} : P_{m,\sigma}^{\prime}( x : f(x) > \dev (1+\alpha)/2 ) > (3/8)\beta \text{ and } P_{m,\sigma}( x : f(x) > \dev (1+\alpha)/2 ) \leq \beta/8 \right) \notag 
+\\ & \leq \E\!\left[ N_{\dev (1-\alpha)/2}(\beta/8) \max_{f \in \hat{\F}} \P\!\left( P_{m,\sigma}^{\prime}( x \!:\! f(x) \!>\! \dev (1+\alpha)/2 ) > (3/8)\beta \right.\right. \notag
+\\ & {\hskip 4.5cm} \left. \phantom{\max_{f \in \hat{\F}}} \left. \text{ and } 
+P_{m,\sigma}( x \!:\! f(x) \!>\! \dev (1+\alpha)/2 ) \leq \beta/8 \middle| X_{[2m]} \right) \right]\!. \label{eqn:uc-condition-on-data}
+\end{align}
+Then note that for any $f \in \F$, we have almost surely 
+\begin{align*}
+& \P\!\left( P_{m,\sigma}^{\prime}( x : f(x) > \dev (1+\alpha)/2 ) > (3/8)\beta \text{ and } P_{m,\sigma}( x : f(x) > \dev (1+\alpha)/2 ) \leq \beta/8 \middle| X_{[2m]} \right)
+\\ & \leq \P\!\left( P_{2m}( x : f(x) > \dev (1+\alpha)/2 ) > (3/16) \beta \text{ and } P_{m,\sigma}( x : f(x) > \dev (1+\alpha)/2 ) \leq \beta/8 \middle| X_{[2m]} \right)
+%\\ & \leq \exp\!\left\{ - m (3/16) \beta (1/3)^{2} / 2 \right\}
+\\ & \leq \exp\!\left\{ - m \beta / 96 \right\},
+\end{align*}
+where the last inequality is by a Chernoff bound, which (as noted by \citet*{hoeffding}) remains valid even when sampling without replacement.
+Together with \eqref{eqn:uc-ghost-ub} and \eqref{eqn:uc-condition-on-data}, we have that
+\begin{align*}
+& \P\!\left( \exists f \in \F : P( x : f(x) > \dev ) > \beta \text{ and } P_{m}( x : f(x) \leq \alpha \dev ) =1 \right) 
+\\ & \leq 2 \E\!\left[ N_{\dev (1-\alpha)/2}(\beta/8) \right] e^{- m \beta / 96}.
+\end{align*}
+%Simplifying the constants in this expression yields the result.
+\end{proof}
+
+
+\begin{lemma}
+\label{lem:eps-gam-covering-numbers}
+There exist universal numerical constants $c,c^{\prime} \in (0,\infty)$ such that $\forall \dev,\beta \in (0,1)$,  
+\begin{equation*}
+N_{\dev}(\beta) \leq \left(\frac{2}{\dev\beta}\right)^{c d(c^{\prime} \dev \beta)},
+\end{equation*}
+where $d(\cdot)$ is the fat-shattering dimension.
+\end{lemma}
+\begin{proof}
+  %Recall that
+   \citet[Theorem 1]{MR1965359} establishes that 
+the $\dev\beta$-covering number of $\F$ under the $L_{2}(P_{2m})$ pseudo-metric 
+is at most 
+\begin{equation}
+\label{eqn:mendelson-vershynin-bound}
+\left(\frac{2}{\dev\beta}\right)^{c d(c^{\prime} \dev \beta)}
+\end{equation}
+for some universal numerical constants $c,c^{\prime} \in (0,\infty)$.
+Then note that for any $f,g \in \F$, Markov's
+%inequality
+and Jensen's inequalities imply
+$\rho_{\dev}(f,g) \leq \frac{1}{\dev} \| f - g \|_{L_{1}(P_{2m})} \leq \frac{1}{\dev} \| f - g \|_{L_{2}(P_{2m})}$.
+Thus, any $\dev\beta$-cover of $\F$ under $L_{2}(P_{2m})$ is also a $\beta$-cover of $\F$ under $\rho_{\dev}$,
+and therefore \eqref{eqn:mendelson-vershynin-bound} is also a bound on $N_{\dev}(\beta)$.
+%\mynote{SH: It would be better to have $(c/\adv)^{c d(\dev)}$, but at least we have this for now.}
+\end{proof}
+
+%%% SH: I'm pretty sure this can be improved to $(c/\adv)^{c d(\dev)}$ or at least improved to $(c/\adv\beta)^{c d(\dev)}$.
+%%%       I think it's basically quantization (to get a finite number of possible y values) and then a covering numbers bound for multiclass classification based on the graph dimension.
+%%%       I'm just still trying to figure out the latter (i.e., a covering numbers bound based on the graph dimension).
+%It is not clear (to the authors) whether the bound on $N_{\dev}(\beta)$ in the above lemma can generally be improved.
+
+Combining the above two results yields the following theorem.
+
+%\noindent {\bf Theorem~\ref{thm:gen-weak-learn} (restated)}~~
+\begin{theorem}
+\label{thm:eps-gam-weak-sample-complexity}
+For some universal numerical constants $c_{1},c_{2},c_{3} \in (0,\infty)$, 
+for any $\dev,\delta,\beta \in (0,1)$ and $\alpha \in [0,1)$, % and $\adv \in (0,1/11)$, 
+letting $X_{1},\ldots,X_{m}$ be iid $P$-distributed, where 
+\begin{equation*}
+m = \left\lceil \frac{c_{1}}{\beta} \left(  d(c_{2} \dev \beta (1-\alpha)) \ln\!\left( \frac{c_{3}}{\dev \beta (1-\alpha)} \right) + \ln\!\left(\frac{1}{\delta}\right) \right) \right\rceil, %(where $d(\cdot)$ is the fat-shattering dimension) 
+\end{equation*}
+with probability at least $1-\delta$, every $f \in \F$ with $\max_{i \in [m]} |f(X_{i}) - f^{*}(X_{i})| \leq \alpha \dev$
+satisfies $P( x : | f(x) - f^{*}(x) | > \dev ) \leq \beta$.
+\end{theorem}
+\begin{proof}
+The result follows immediately from combining Theorem~\ref{thm:weak-learning-bound} and Lemma~\ref{lem:eps-gam-covering-numbers}.
+\end{proof}
+
+In particular, Theorem~\ref{thm:gen-weak-learn} follows immediately from this result by taking $\beta = 1/2 - \adv$ and $\alpha = \adv/2$.
+
+To discuss tightness of Theorem~\ref{thm:eps-gam-weak-sample-complexity}, we note that
+%Hans Simon
+\citet{DBLP:journals/siamcomp/Simon97} proved a sample complexity lower bound 
+%on the sample complexity of finding an $(\dev,1/2-\beta)$-weak hypothesis with probability at least $1-\delta$:
+for the same criterion of 
+\begin{equation*}
+\Omega\!\left( \frac{d^{\prime}(c \dev)}{\beta} + \frac{1}{\beta} \log \frac{1}{\delta} \right),
+\end{equation*}
+where $d^{\prime}(\cdot)$ is a quantity somewhat smaller than the fat-shattering dimension, 
+essentially representing a fat Natarajan dimension.
+Thus, aside from the differences in the complexity measure (and a logarithmic factor), 
+we establish an upper bound of a similar form to Simon's lower bound.
+%In our case, because we are considering these learners to be ``weak'', 
+%we are concerned with the case of $\beta$ bounded away from $0$ (corresponding to $\adv$ bounded away from $1/2$), 
+%in which case the above lower bound simplifies to $\Omega(d(\dev) + \log(1/\delta))$.
+%
+%In comparison, the upper bound established in our 
+%Theorem~\ref{thm:eps-gam-weak-sample-complexity} 
+%implies an upper bound 
+%$O(d(c_{2} \adv \dev)\log(1/\dev\adv) + \log(1/\delta))$. 
+%In the case of $\adv$ also bounded away from $0$, this simplifies to $O( d(c\dev)\log(1/\dev) + \log(1/\delta))$, 
+%so that there is essentially only a logarithmic gap between our weak learning sample complexity bound 
+%and the lower bound on the optimal sample complexity established by \citet{DBLP:journals/siamcomp/Simon97}.
+%Determining whether this logarithmic factor can be removed is a very interesting question.
+%In the special case of binary classification, we can effectively consider $\dev$ to itself be bounded away from $0$, 
+%so that the upper bound simplifies to $O(d + \log(1/\delta))$, where $d$ denotes the VC dimension in that case.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     

@@ -1,9 +1,75 @@
 
 \chapter{Introduction}
     
-\blindtext
+\label{sec:intro}
+
+\begin{sloppypar}
+Sample compression 
+is a natural learning strategy,
+%in which
+whereby
+%one
+the learner
+seeks to retain a small subset of the training examples,
+which (if successful)
+may then be decoded as
+%will
+%%that
+%unambiguously define
+a hypothesis with low empirical error.
+Overfitting is controlled by the size of this
+learner-selected
+``compression set''.
+%This is
+%a special case of the more general
+Part of a
+%larger
+more general
+{\em Occam learning} paradigm,
+such results are commonly summarized by ``compression implies learning''.
+%The various manifestation
+%Colloquially, this phenomenon (in its various 
+A fundamental question,
+posed by \citet{Littlestone86relatingdata},
+concerns the reverse implication:
+Can every learner be converted into a sample compression scheme?
+Or, in a more quantitative formulation:
+Does every VC class admit a constant-size
+sample compression scheme?
+A series of partial results
+\citep{floyd1989space,helmbold1992learning,DBLP:journals/ml/FloydW95,ben1998combinatorial,DBLP:journals/jmlr/KuzminW07,DBLP:journals/jcss/RubinsteinBR09,DBLP:journals/jmlr/RubinsteinR12,MR3047077,livni2013honest,moran2017teaching}
+culminated in \citet{DBLP:journals/jacm/MoranY16}
+which resolved the latter question\footnote{
+  The refined conjecture of \citet{Littlestone86relatingdata}, that any concept class with VC-dimension $d$
+  admits a compression scheme of size $O(d)$, remains open.}.
+\end{sloppypar}
+
+\citeauthor{DBLP:journals/jacm/MoranY16}'s
+solution involved a clever use of von Neumann's minimax theorem,
+which allows one to
+make the leap
+from
+the existence of a weak learner uniformly over all {\em distributions on examples}
+to
+the existence of a {\em distribution on weak hypotheses} under which they achieve
+a certain performance simultaneously over all of the examples.
+Although their paper can be understood without any knowledge of boosting,
+\citeauthor{DBLP:journals/jacm/MoranY16} note the well-known connection between boosting
+and compression. Indeed, boosting may be used to obtain a constructive proof
+of the minimax theorem
+\citep{freund1996game,MR1729311}
+--- 
+and this connection was what motivated us to
+seek an efficient algorithm implementing
+\citeauthor{DBLP:journals/jacm/MoranY16}'s
+existence proof.
+Having obtained an efficient conversion procedure
+from consistent PAC learners to bounded-size sample
+compression schemes, we turned our attention to the case of real-valued hypotheses.
+It turned out that a virtually identical boosting framework
+could be made to work for this case as well, although a novel analysis was required.
     
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
@@ -342,7 +408,169 @@ bounded-variation regression.
 
 \section{Related work}
 
-\blindmathpaper
+\label{sec:rel-work}
+
+It appears that
+generalization bounds
+based on sample compression
+were
+independently discovered by
+\citet{Littlestone86relatingdata} and \citet{MR1383093}
+and further elaborated upon by \citet{DBLP:journals/ml/GraepelHS05};
+see \citet{DBLP:journals/ml/FloydW95} for background and discussion.
+A more general kind of Occam learning was discussed in \citet{MR1072253}.
+Computational lower bounds on sample compression were
+obtained in \citet{gottlieb2014near},
+and some communication-based
+lower bounds
+%based on  complexity
+were given in
+\citet{DBLP:journals/corr/abs-1711-05893}.
+%recent results may be classified into statistical and computational.
+%Statistical:
+%ref's from moran+yehudaioff
+%in the context of metric spaces,
+%universal bayes-consistency
+%\citet{DBLP:conf/nips/KontorovichSW17}
+%active learning
+%\citet{DBLP:journals/corr/KontorovichSU16-nips}
+%.
+%Computational:
+%\citet{DBLP:conf/nips/GottliebKN14}
+%\citet{DBLP:journals/jmlr/GottliebKN17}
+%Note that our results do not contradict
+%\citet{DBLP:journals/corr/abs-1711-05893}
+%because in the initial stage we retain $O(\log n)$ points
+%and only reduce it to constant by sub-sampling.
+
+\begin{sloppypar}
+Beginning with \citet{FreundSchapire97}'s \algname{AdaBoost.R}
+algorithm, there have been numerous attempts to extend
+AdaBoost to the real-valued case
+\citep{bertoni1997boosting,Drucker:1997:IRU:645526.657132,avnimelech1999boosting,Karakoulas00,DuffyHelmbold02,kegl2003robust,NOCK200725}
+along with various theoretical and heuristic
+constructions of particular weak regressors
+\citep{Mason1999,MR1873328,DBLP:journals/ml/MannorM02};
+see also the survey \citet{Mendes-Moreira2012}.
+\end{sloppypar}
+
+
+\citet[Remark 2.1]{DuffyHelmbold02}
+%seem to have put their finger on the main
+spell out a central
+technical challenge:
+no boosting algorithm can
+``always force the
+base regressor to output a useful function by simply modifying the distribution over the
+sample''. This is because unlike a binary classifier, which localizes errors on specific examples,
+a real-valued hypothesis can spread its error evenly over the entire sample,
+and it will not be affected by reweighting.
+The $(\dev,\adv)$-weak learner,
+which has appeared, among other works, in
+\citet{DBLP:journals/cpc/AnthonyBIS96,DBLP:journals/siamcomp/Simon97,avnimelech1999boosting,kegl2003robust},
+%definition
+gets around this difficulty
+---
+but provable general constructions of such learners have been lacking.
+Likewise, the heart of our sample compression engine, \algname{MedBoost},
+has been widely in use since \citet{FreundSchapire97} in various guises.
+Our Theorem~\ref{thm:gen-weak-learn}
+supplies the remaining piece of the puzzle:
+{\em any} sample-consistent regressor
+applied to some random sample of bounded size
+yields
+an $(\dev,\adv)$-weak hypothesis.
+The closest analogue we were able to find was
+\citet[Theorem 3]{DBLP:journals/cpc/AnthonyBIS96},
+which is non-trivial only for function classes with finite pseudo-dimension,
+and is inapplicable, e.g., to classes of $1$-Lipschitz or bounded variation functions.
+%\todoi{Should we mention the relation of \citet[Theorem 3]{DBLP:journals/cpc/AnthonyBIS96}
+%  to our Theorem~\ref{thm:gen-weak-learn}? BTW, their Thm 2 shows that the band dimension is finite iff
+%  pdim is finite, so not applicable to interesting cases --- as they themselves observe in Prop. 17.}
+
+%Constructing weak learners
+%
+%I'm doing a long search for any relevant papers as we discussed yesterday.
+%So far those are the results - 
+%On the Existence of Linear Weak Learners and Applications to Boosting
+%0-1 case
+%Proves that linear classifiers are weak learners
+%https://link.springer.com/content/pdf/10.1023%2FA%3A1013959922467.pdf
+%A Real generalization of discrete AdaBoost
+%Seems like another extension with proof of upper bound. 
+%Definition of weak learner seems a bit vague but close to ours
+%Weak learners as a black box
+%https://ac.els-cdn.com/S0004370206001111/1-s2.0-S0004370206001111-main.pdf?_tid=5cb0b72c-1169-11e8-80b8-00000aacb361&acdnat=1518600666_8086d691e0be43248acbeade8cec6da5
+%Boosted regression trees
+%Uses small decision trees for the base learners (super popular)
+%On top of that usually GD approach for boosting
+%Boosting Algorithms as Gradient Descent - Bartlett et al
+%connect the two. Define weak-learners by minimizing some inner product on the gradient. Generates weak-learners accordingly. 
+%Following this "Boosting with the L2 -Loss:Regression and Classification" creates a linear regression scheme 
+%\end{verbatim}
+
+
+%Our type of weak learner:
+%\begin{verbatim}
+%Isn't the definition on Avnimelech and Intrator  (at the end of page 4 and start of page 5) almost identical to ours?
+%
+%Also at Kegl paper%
+%
+%  author    = {Hans Ulrich Simon},
+%  title     = {Bounds on the Number of Examples Needed for Learning Functions},
+%\end{verbatim}
+
+
+%\todoi{AK$\to$Meni: can you paste the other relevant boosting/regression literature here, that you found?}
+
+%Avnimelech and Intrator \cite{avnimelech1999boosting}
+%A slight modification of Freund and Schapire
+%Realizable case
+%Given 3 $(\eps, \gamma)$-weak  learners produce
+%$(\eps, \gamma^*)$-weak learner
+%when $\gamma^* < 3\gamma^2 - 2\gamma^3$
+%It seems like to get to an arbitrary small $\gamma$ using hierarchies (as they suggest) )it %may need exponentially large number of weak learners
+
+%\section{Towards a Strategy for Boosting Regressors - Karakoulas and  Shawe-Taylor}
+%\cite{karakoulas2000towards}
+%\section{Boosting methods for regression - Duffy and Helmbold}
+%\cite{duffy2002boosting}
+
+%\section{Robust Regression by Boosting the Median}
+%Treats functions $\mathbb{R}^d \to \mathbb{R}$ but I can't find why this restriction is need%ed
+%Moreover in \cite{bertoni1997boosting} similar algorithm and result are presented
+%and the domain isn't restricted at all.
+%\section{More without full generalization analysis}
+%Drucker \cite{drucker1997improving}
+%\todoi{give long list here}.
+
+The literature on general sample compression schemes for real-valued functions is quite sparse. 
+There are
+%classical
+well-known
+%specific
+narrowly tailored
+results on specifying functions or approximate versions of functions 
+using a finite number of points, such as the
+%well-known
+classical
+fact that a polynomial of degree $p$ can be perfectly 
+recovered from $p+1$ points.
+To our knowledge, the only \emph{general} results on sample compression for real-valued functions
+(applicable to \emph{all} learnable function classes) is Theorem 4.3 of \citet*{david2016supervised}.
+They propose a general technique to convert any learning algorithm achieving an arbitrary sample 
+complexity $M(\eps,\delta)$ into a compression scheme of size $O(M(\eps,\delta) \log(M(\eps,\delta)))$, 
+where $\delta$ may approach $1$.  However, their notion of compression scheme is significantly weaker 
+than ours: namely, they allow $\hat{h} = \rho(\kappa(S))$ to satisfy merely $\frac{1}{m} \sum_{i=1}^{m} | \hat{h}(x_i) - h^{*}(x_i) | \leq \eps$, 
+rather than our \emph{uniform} $\eps$-approximation requirement $\max_{1 \leq i \leq m} | \hat{h}(x_i) - h^{*}(x_i) | \leq \eps$.
+In particular, in the special case of $\F$ a family of \emph{binary}-valued functions, their notion of 
+sample compression does \emph{not} recover the usual notion of sample compression schemes for classification, 
+whereas our uniform $\eps$-approximate compression notion \emph{does} recover it as a special case.  We therefore 
+consider our notion to be a more
+%-appropriate
+fitting
+generalization of the definition of sample compression 
+to the real-valued case.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -350,7 +578,62 @@ bounded-variation regression.
 
 \section{Our contribution}
 
-\blindmathpaper
+\begin{sloppypar}
+Our point of departure is the simple but powerful observation
+%\citep[Display (6.29)]{MR2920188}
+\citep{MR2920188}
+%that the $\alpha$-Boost algorithm
+that many boosting algorithms (e.g., AdaBoost, $\alpha$-Boost) are capable of outputting 
+%outputs 
+a family of $O(\log(m)/\adv^2)$ hypotheses
+such that not only does their (weighted) majority vote yield a sample-consistent
+classifier, but in fact a $\approx(\frac12+\adv)$ super-majority does as well.
+This fact implies that after boosting, we can sub-sample a constant (i.e., independent of sample size $m$)
+number of classifiers and thereby efficiently recover the sample compression bounds
+of 
+\citet{DBLP:journals/jacm/MoranY16}.
+\end{sloppypar}
+
+Our chief technical contribution, however, is in the real-valued case.
+As we discuss below, extending the boosting framework from classification to regression
+presents a host of technical challenges, and there is currently no off-the-shelf
+general-purpose analogue of AdaBoost for real-valued hypotheses.
+One of our insights is to impose distinct error metrics on the weak and strong learners:
+a ``stronger'' one on the latter and a ``weaker'' one on the former.
+%Our innovation lies in imposing a ``strong'' error metric on the strong learner
+%and a ``weaker'' one on the weak one.
+This allows us to achieve
+%several
+two
+goals simultaneously:
+%In order of increasing importance:
+\begin{itemize}
+\hide{
+\item[(a)]
+\citet{kegl2003robust}'s
+MedBoost
+---
+%  A known variant
+%\citep{DBLP:conf/colt/Kegl03}
+a variant of
+%of essentially
+the classical $\alpha$-Boost algorithm
+---
+achieves a weak-to-strong conversion, for the notions we define. The analysis is standard.
+}
+\item[(a)]
+  We give apparently the first generic construction for our weak learner,
+  demonstrating that the object is natural and abundantly available. This is in contrast with
+  many previous proposed weak regressors, whose stringent or exotic definitions made them
+  %difficult
+  unwieldy
+  to construct or verify as such. The construction is novel and may be of independent interest.
+\item[(b)]
+  We show that the output of a certain real-valued boosting algorithm may be sparsified so as to yield a constant size sample compression
+  analogue of the
+  \citeauthor{DBLP:journals/jacm/MoranY16} result for classification.
+  This gives the first general constant-size sample compression scheme having uniform approximation guarantees on the data. %for generic real-valued learners.
+\end{itemize}
 
 
 
